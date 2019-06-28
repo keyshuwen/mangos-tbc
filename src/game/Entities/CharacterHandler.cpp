@@ -757,7 +757,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         SendNotification("Your taxi nodes have been reset.");
     }
 
-    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+    bool Loginfirst = pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST);
+    if (Loginfirst)
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
     // show time before shutdown if shutdown planned.
@@ -786,6 +787,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
     m_playerLoading = false;
+
+    //Hook for OnLogin Event
+    sScriptDevAIMgr.OnLogin(pCurrChar, Loginfirst);
+
     delete holder;
 }
 

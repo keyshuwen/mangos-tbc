@@ -1063,6 +1063,49 @@ void Unit::Kill(Unit* victim, DamageEffectType damagetype, SpellEntry const* spe
     else                                                // Killed creature
         JustKilledCreature((Creature*)victim, killer);
 
+    //Hook for OnPVPKill Event
+    if (victim->GetTypeId() == TYPEID_PLAYER && (this->GetTypeId() == TYPEID_PLAYER || (this->GetMaster() && this->GetMaster()->GetTypeId() == TYPEID_PLAYER)))
+    {
+        if (tapper)
+            sScriptDevAIMgr.OnPVPKill(tapper, (Player*)victim);
+    }
+    //Hook for OnCreatureKill Event
+    else if (victim->GetTypeId() == TYPEID_UNIT && (this->GetTypeId() == TYPEID_PLAYER || (this->GetMaster() && this->GetMaster()->GetTypeId() == TYPEID_PLAYER)))
+    {
+        if (tapper)
+        {
+            if (Group* group = tapper->GetGroup())
+            {
+                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                {
+                    Player* pGroupGuy = itr->getSource();
+                    if (!pGroupGuy)
+                        continue;
+
+                    // will proccessed later
+                    if (pGroupGuy == tapper)
+                        continue;
+
+                    // member (alive or dead) or his corpse at req. distance
+                    if (!pGroupGuy->IsAtGroupRewardDistance((Creature*)victim))
+                        continue;
+
+                    sScriptDevAIMgr.OnCreatureKill(pGroupGuy, (Creature*)victim);
+                }
+            }
+
+            // member (alive or dead) or his corpse at req. distance
+            if (tapper->IsAtGroupRewardDistance((Creature*)victim))
+                sScriptDevAIMgr.OnCreatureKill(tapper, (Creature*)victim);
+        }
+    }
+    //Hook for OnPlayerKilledByCreature Event
+    else if (victim->GetTypeId() == TYPEID_PLAYER && this->GetTypeId() == TYPEID_UNIT)
+    {
+        if (tapper)
+            sScriptDevAIMgr.OnPlayerKilledByCreature((Creature*)victim, tapper);
+    }
+
     // stop combat
     DEBUG_FILTER_LOG(LOG_FILTER_DAMAGE, "DealDamageAttackStop");
     victim->CombatStop();
@@ -9548,11 +9591,17 @@ void Unit::SetAttackDamageSchool(WeaponAttackType attType, SpellSchools school)
 
 void Unit::SetLevel(uint32 lvl)
 {
+    uint32 oldLevel = getLevel();
+
     SetUInt32Value(UNIT_FIELD_LEVEL, lvl);
 
     // group update
     if ((GetTypeId() == TYPEID_PLAYER) && ((Player*)this)->GetGroup())
         ((Player*)this)->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
+
+    //Hook for OnPlayerLevelChanged Event
+    if (GetTypeId() == TYPEID_PLAYER)
+        sScriptDevAIMgr.OnPlayerLevelChanged((Player*)this, oldLevel, lvl);
 }
 
 void Unit::SetHealth(uint32 val)

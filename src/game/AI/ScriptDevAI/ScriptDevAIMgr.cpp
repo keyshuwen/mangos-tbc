@@ -137,6 +137,90 @@ void Script::RegisterSelf(bool bReportError)
 //********************************
 //*** Functions to be Exported ***
 
+void ScriptDevAIMgr::OnLogin(Player* pPlayer, bool loginFirst)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+
+    if (!pTempScript || !pTempScript->pOnLogin)
+        return;
+
+    return pTempScript->pOnLogin(pPlayer, loginFirst);
+}
+
+void ScriptDevAIMgr::OnLogout(Player* pPlayer)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+
+    if (!pTempScript || !pTempScript->pOnLogout)
+        return;
+
+    return pTempScript->pOnLogout(pPlayer);
+}
+
+void ScriptDevAIMgr::OnPVPKill(Player* killer, Player* killed)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+
+    if (!pTempScript || !pTempScript->pOnPVPKill)
+        return;
+
+    return pTempScript->pOnPVPKill(killer, killed);
+}
+
+void ScriptDevAIMgr::OnCreatureKill(Player* killer, Creature* killed)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!pTempScript || !pTempScript->pOnCreatureKill)
+        return;
+
+    return pTempScript->pOnCreatureKill(killer, killed);
+}
+
+void ScriptDevAIMgr::OnPlayerKilledByCreature(Creature* killer, Player* killed)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!pTempScript || !pTempScript->pOnPlayerKilledByCreature)
+        return;
+
+    return pTempScript->pOnPlayerKilledByCreature(killer, killed);
+}
+
+void ScriptDevAIMgr::OnPlayerLevelChanged(Player* pPlayer, uint8 oldLevel, uint8 newLevel)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!pTempScript || !pTempScript->pOnLevelChanged)
+        return;
+
+    return pTempScript->pOnLevelChanged(pPlayer, oldLevel, newLevel);
+}
+
+void ScriptDevAIMgr::OnPlayerTalentsReset(Player* pPlayer, bool no_cost)
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!pTempScript || !pTempScript->pOnTalentsReset)
+        return;
+
+    return pTempScript->pOnTalentsReset(pPlayer, no_cost);
+}
+
+void ScriptDevAIMgr::OnStartup()
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!pTempScript || !pTempScript->pOnStartup)
+        return;
+
+    return pTempScript->pOnStartup();
+}
+
+void ScriptDevAIMgr::OnShutdown()
+{
+    Script* pTempScript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!pTempScript || !pTempScript->pOnShutdown)
+        return;
+
+    return pTempScript->pOnShutdown();
+}
+
 bool ScriptDevAIMgr::OnGossipHello(Player* pPlayer, Creature* pCreature)
 {
     Script* pTempScript = GetScript(pCreature->GetScriptId());
@@ -562,7 +646,11 @@ void ScriptDevAIMgr::LoadScriptNames()
     }
 
     BarGoLink bar(result->GetRowCount());
-    uint32 count = 0;
+
+    //OnEvent Changes
+    m_scriptNames.push_back("scripted_on_events");
+
+    uint32 count = 1;
 
     do
     {

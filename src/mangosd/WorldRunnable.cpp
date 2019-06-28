@@ -27,6 +27,7 @@
 #include "Maps/MapManager.h"
 
 #include "Database/DatabaseEnv.h"
+#include "AI/ScriptDevAI/ScriptDevAIMgr.h"
 
 #define WORLD_SLEEP_CONST 50
 
@@ -46,6 +47,9 @@ void WorldRunnable::run()
     uint32 realPrevTime = WorldTimer::tick();
 
     uint32 prevSleepTime = 0;                               // used for balanced full tick time length near WORLD_SLEEP_CONST
+
+    //Hook for OnStartup Event
+    sScriptDevAIMgr.OnStartup();
 
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
