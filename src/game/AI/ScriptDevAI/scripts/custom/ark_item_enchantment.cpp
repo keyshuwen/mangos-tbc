@@ -37,30 +37,15 @@ void _ShowItemEnchantmentMenu(Item* pItem, Item* target, Player* pPlayer)
 
     ArkItemEnchantment const* itr = sArkMgr.GetArkItemEnchantmentConfig(target->GetEntry());
     if (!itr)
+    {
+        ChatHandler(pPlayer).PSendSysMessage("[系统]: 该装备不可附魔, 请重新选择物品!");
         return;
-
+    }
 
 	uint32 itemClass = target->GetProto()->Class;
 	if (itemClass != 2/*武器*/ && itemClass != 4/*装备护甲首饰*/)
 	{
-        ChatHandler(pPlayer).PSendSysMessage("[系统]: 该装备不可附魔, 请重新选择物品!", itr->jf);
-		return;
-	}
-
-	uint32 itemInventoryType = target->GetProto()->InventoryType;
-	if (itr->inventoryType == 0)
-	{
-		if (itemInventoryType != 1 && itemInventoryType != 2 && itemInventoryType != 3 && itemInventoryType != 4 && itemInventoryType != 5 && itemInventoryType != 6 && itemInventoryType != 7
-			&& itemInventoryType != 8 && itemInventoryType != 9 && itemInventoryType != 10 && itemInventoryType != 11 && itemInventoryType != 12 && itemInventoryType != 16 
-			&& itemInventoryType != 19 && itemInventoryType != 20)
-		{
-            ChatHandler(pPlayer).PSendSysMessage("[系统]: 装备类型错误, 不支持该装备类型!", itr->jf);
-			return;
-		}
-	}
-	else if (itemInventoryType != itr->inventoryType)
-	{
-        ChatHandler(pPlayer).PSendSysMessage("[系统]: 装备类型不匹配, 请重新选择物品!", itr->jf);
+        ChatHandler(pPlayer).PSendSysMessage("[系统]: 该装备不可附魔, 请重新选择物品!");
 		return;
 	}
 
