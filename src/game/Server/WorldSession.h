@@ -26,6 +26,7 @@
 #include "Common.h"
 #include "Globals/SharedDefines.h"
 #include "Entities/ObjectGuid.h"
+#include "Server/WorldSocket.h"
 #include "AuctionHouse/AuctionHouseMgr.h"
 #include "Entities/Item.h"
 #include "WorldSocket.h"
@@ -46,6 +47,7 @@ class Item;
 class Object;
 class Player;
 class Unit;
+class Warden;
 class WorldPacket;
 class QueryResult;
 class LoginQueryHolder;
@@ -179,6 +181,7 @@ class WorldSession
         void SizeError(WorldPacket const& packet, uint32 size) const;
 
         void SendPacket(WorldPacket const& packet, bool forcedSend = false) const;
+		void SendPacketWarden(WorldPacket const& packet) const;
         void SendExpectedSpamRecords();
         void SendMotd();
         void SendNotification(const char* format, ...) const ATTR_PRINTF(2, 3);
@@ -203,6 +206,9 @@ class WorldSession
 #endif
         void SetPlayer(Player* plr) { _player = plr; }
         uint8 Expansion() const { return m_expansion; }
+
+        // Warden
+        void InitWarden(BigNumber* k, std::string const& os);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -698,7 +704,6 @@ class WorldSession
         void HandleLeaveBattlefieldOpcode(WorldPacket& recv_data);
         void HandleBattlemasterJoinArena(WorldPacket& recv_data);
         void HandleReportPvPAFK(WorldPacket& recv_data);
-
         void HandleWardenDataOpcode(WorldPacket& recv_data);
         void HandleWorldTeleportOpcode(WorldPacket& recv_data);
         void HandleMinimapPingOpcode(WorldPacket& recv_data);
@@ -765,6 +770,10 @@ class WorldSession
         void HandleSetGuildBankTabText(WorldPacket& recv_data);
 
         void HandleGetMirrorimageData(WorldPacket& recv_data);
+
+        uint16 GetClientBuild() const { return _build; }
+        void SetClientBuild(uint16 build) { _build = build; }
+
     private:
         // Additional private opcode handlers
         void HandleComplainMail(WorldPacket& recv_data);
@@ -790,6 +799,10 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        // Warden
+        Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config
+        uint16 _build;
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
