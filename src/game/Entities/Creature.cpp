@@ -46,6 +46,7 @@
 #include "Grids/CellImpl.h"
 #include "Movement/MoveSplineInit.h"
 #include "Entities/CreatureLinkingMgr.h"
+#include "AI/ScriptDevAI/scripts/custom/ark_common.h"
 
 // apply implementation of the singletons
 #include "Policies/Singleton.h"
@@ -1259,6 +1260,9 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
     if (level == USE_DEFAULT_DATABASE_LEVEL)
         level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
 
+    //Instance difficulty Creature level
+    sArkMgr.InstanceCreatureLevel(GetMapId(), level);
+
     SetLevel(level);
 
     //////////////////////////////////////////////////////////////////////////
@@ -1278,6 +1282,12 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
     float rangedAttackPwr = 0.f;
 
     float damageMod = _GetDamageMod(rank);
+
+    //Instance difficulty level
+    float InstanceDamageRate = sArkMgr.InstanceLevel(GetMapId());
+    if (InstanceDamageRate > 0)
+        damageMod = InstanceDamageRate;
+
     float damageMulti = cinfo->DamageMultiplier * damageMod;
     bool usedDamageMulti = false;
 
@@ -1366,7 +1376,14 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
         }
     }
 
-    health *= _GetHealthMod(rank); // Apply custom config settting
+    float HealthMod = _GetHealthMod(rank); // Apply custom config settting
+
+    //Instance difficulty level
+    float InstanceHealthRate = sArkMgr.InstanceLevel(GetMapId());
+    if (InstanceHealthRate > 0)
+        HealthMod = InstanceHealthRate;
+
+    health *= HealthMod;
     if (health < 1)
         health = 1;
 

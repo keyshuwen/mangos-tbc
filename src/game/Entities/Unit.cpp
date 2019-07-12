@@ -47,6 +47,7 @@
 #include "Movement/MoveSpline.h"
 #include "Entities/CreatureLinkingMgr.h"
 #include "Tools/Formulas.h"
+#include "AI/ScriptDevAI/scripts/custom/ark_common.h"
 
 #include <math.h>
 #include <array>
@@ -7060,8 +7061,17 @@ uint32 Unit::SpellDamageBonusDone(Unit* pVictim, SpellEntry const* spellProto, u
     int32 DoneTotal = 0;
 
     // Creature damage
-    if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet())
-        DoneTotalMod *= Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank);
+    if (GetTypeId() == TYPEID_UNIT && !((Creature*)this)->IsPet()) 
+    {
+        float SpellDamageMod = Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank);
+
+        //Instance difficulty level
+        float InstanceSpellDamageRate = sArkMgr.InstanceLevel(((Creature*)this)->GetMapId());
+        if (InstanceSpellDamageRate > 0)
+            SpellDamageMod = InstanceSpellDamageRate;
+
+        DoneTotalMod *= SpellDamageMod;
+    }  
 
     AuraList const& mModDamagePercentDone = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (auto i : mModDamagePercentDone)

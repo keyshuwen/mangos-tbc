@@ -317,3 +317,63 @@ std::string ArkMgr::GetNameLink(Player* player, bool type)
     }
     return sIcon;
 }
+
+void ArkMgr::LoadArkInstanceDB()
+{
+    // For reload case
+    _arkInstanceStore.clear();
+
+    QueryResult* result = WorldDatabase.Query("SELECT map, level, Creaturelevel FROM _ark_instance_template");
+
+    if (!result)
+    {
+        sLog.outErrorDb(">> Loaded 0 ARK Instance Config. DB table `_ark_instance_template` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ArkInstanceConfig itr;
+        uint32 map = fields[0].GetUInt32();
+        itr.level = fields[1].GetUInt32();
+        itr.Creaturelevel = fields[2].GetUInt32();
+
+        //insert
+        _arkInstanceStore[map] = itr;
+
+        ++count;
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString(">> Loaded %u ARK Instance Config", count);
+}
+
+//Instance difficulty level
+float ArkMgr::InstanceLevel(uint32 mapid)
+{
+    ArkInstanceConfig const* itr = GetArkInstanceConfig(mapid);
+    if (!itr || itr->level <= 0)
+        return 0;
+
+    return (float)itr->level / 10;
+}
+
+void ArkMgr::InstanceCreatureLevel(uint32 mapid, uint32& value)
+{
+    if (value <= 1)
+        return;
+
+    ArkInstanceConfig const* itr = GetArkInstanceConfig(mapid);
+    if (!itr || itr->Creaturelevel <= 0)
+        return;
+
+    value += itr->Creaturelevel;
+    if (value > DEFAULT_MAX_CREATURE_LEVEL)
+        value = uint32(DEFAULT_MAX_CREATURE_LEVEL);
+
+    return;
+}

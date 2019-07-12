@@ -55,6 +55,12 @@ struct ArkVipSystem
     std::string description;
 };
 
+struct ArkInstanceConfig
+{
+    uint32 level;
+    uint32 Creaturelevel;
+};
+
 class ArkMgr
 {
 public:
@@ -89,10 +95,21 @@ public:
     void SetVipLevel(uint32 accountId, uint32 value);
 
     std::string GetNameLink(Player* player, bool type);
+
+    void LoadArkInstanceDB();
+    typedef std::unordered_map<uint32, ArkInstanceConfig> ArkInstanceContainer;
+    ArkInstanceConfig const* GetArkInstanceConfig(uint32 mapid) const
+    {
+        ArkInstanceContainer::const_iterator itr = _arkInstanceStore.find(mapid);
+        return itr != _arkInstanceStore.end() ? &itr->second : nullptr;
+    }
+    //Instance difficulty level 
+    float InstanceLevel(uint32 mapid);
+    void InstanceCreatureLevel(uint32 mapid, uint32& value);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
-
+    ArkInstanceContainer _arkInstanceStore;
 };
 
 #define sArkMgr MaNGOS::Singleton<ArkMgr>::Instance()

@@ -197,6 +197,8 @@ void OnStartup()
     sArkMgr.LoadArkConfig();
     sLog.outString("Loaded Ark Vip System...");
     sArkMgr.LoadArkVipSystem();
+    sLog.outString("Loaded ARK Instance Config...");
+    sArkMgr.LoadArkInstanceDB();
     sLog.outString("============================================================================================");
     sLog.outString("Ark Loaded end, Now you ready to play.");
     sLog.outString("");
