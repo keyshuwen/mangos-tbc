@@ -7066,7 +7066,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* pVictim, SpellEntry const* spellProto, u
         float SpellDamageMod = Creature::_GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->Rank);
 
         //Instance difficulty level
-        float InstanceSpellDamageRate = sArkMgr.InstanceLevel(((Creature*)this)->GetMapId());
+        float InstanceSpellDamageRate = sArkMgr.InstanceLevel(((Creature*)this)->GetMapId(), ((Creature*)this)->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC);
         if (InstanceSpellDamageRate > 0)
             SpellDamageMod = InstanceSpellDamageRate;
 

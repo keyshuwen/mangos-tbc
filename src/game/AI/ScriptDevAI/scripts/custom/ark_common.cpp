@@ -326,7 +326,7 @@ void ArkMgr::LoadArkInstanceDB()
     // For reload case
     _arkInstanceStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT map, level, Creaturelevel FROM _ark_instance_template");
+    QueryResult* result = WorldDatabase.Query("SELECT map, level, Creaturelevel, Herolevel, HeroCreaturelevel FROM _ark_instance_template");
 
     if (!result)
     {
@@ -343,6 +343,8 @@ void ArkMgr::LoadArkInstanceDB()
         uint32 map = fields[0].GetUInt32();
         itr.level = fields[1].GetUInt32();
         itr.Creaturelevel = fields[2].GetUInt32();
+        itr.Herolevel = fields[3].GetUInt32();
+        itr.HeroCreaturelevel = fields[4].GetUInt32();
 
         //insert
         _arkInstanceStore[map] = itr;
@@ -356,25 +358,54 @@ void ArkMgr::LoadArkInstanceDB()
 }
 
 //Instance difficulty level
-float ArkMgr::InstanceLevel(uint32 mapid)
+float ArkMgr::InstanceLevel(uint32 mapid, bool Heroic)
 {
     ArkInstanceConfig const* itr = GetArkInstanceConfig(mapid);
-    if (!itr || itr->level <= 0)
-        return 0;
+    if (!itr)
+        return 0.0f;
 
-    return (float)itr->level / 10;
+    //Hero Instance
+    if (Heroic)
+    {
+        if (itr->Herolevel <= 0)
+            return 0.0f;
+
+        return (float)itr->Herolevel / 10;
+    }
+    else
+    {
+        if (itr->level <= 0)
+            return 0.0f;
+
+        return (float)itr->level / 10;
+    }
 }
 
-void ArkMgr::InstanceCreatureLevel(uint32 mapid, uint32& value)
+void ArkMgr::InstanceCreatureLevel(uint32 mapid, bool Heroic, uint32& value)
 {
     if (value <= 1)
         return;
 
     ArkInstanceConfig const* itr = GetArkInstanceConfig(mapid);
-    if (!itr || itr->Creaturelevel <= 0)
+    if (!itr)
         return;
 
-    value += itr->Creaturelevel;
+    //Hero Instance
+    if (Heroic)
+    {
+        if (itr->HeroCreaturelevel <= 0)
+            return;
+
+        value += itr->HeroCreaturelevel;
+    } 
+    else
+    {
+        if (itr->Creaturelevel <= 0)
+            return;
+
+        value += itr->Creaturelevel;
+    }  
+
     if (value > DEFAULT_MAX_CREATURE_LEVEL)
         value = uint32(DEFAULT_MAX_CREATURE_LEVEL);
 

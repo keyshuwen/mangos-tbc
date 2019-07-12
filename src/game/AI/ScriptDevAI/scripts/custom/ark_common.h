@@ -61,6 +61,8 @@ struct ArkInstanceConfig
 {
     uint32 level;
     uint32 Creaturelevel;
+    uint32 Herolevel;
+    uint32 HeroCreaturelevel;
 };
 
 struct ArkMenuConfig
@@ -167,8 +169,8 @@ public:
         ArkInstanceContainer::const_iterator itr = _arkInstanceStore.find(mapid);
         return itr != _arkInstanceStore.end() ? &itr->second : nullptr;
     }
-    float InstanceLevel(uint32 mapid);
-    void InstanceCreatureLevel(uint32 mapid, uint32& value);
+    float InstanceLevel(uint32 mapid, bool Heroic);
+    void InstanceCreatureLevel(uint32 mapid, bool Heroic, uint32& value);
 
     //Instant Arrive Fly
     bool IsFlyInstantArrive(uint32 guid) const;

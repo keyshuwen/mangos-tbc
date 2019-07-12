@@ -1261,7 +1261,7 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
         level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
 
     //Instance difficulty Creature level
-    sArkMgr.InstanceCreatureLevel(GetMapId(), level);
+    sArkMgr.InstanceCreatureLevel(GetMapId(), GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC, level);
 
     SetLevel(level);
 
@@ -1284,7 +1284,7 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
     float damageMod = _GetDamageMod(rank);
 
     //Instance difficulty level
-    float InstanceDamageRate = sArkMgr.InstanceLevel(GetMapId());
+    float InstanceDamageRate = sArkMgr.InstanceLevel(GetMapId(), GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC);
     if (InstanceDamageRate > 0)
         damageMod = InstanceDamageRate;
 
@@ -1379,7 +1379,7 @@ void Creature::SelectLevel(uint32 forcedLevel /*= USE_DEFAULT_DATABASE_LEVEL*/)
     float HealthMod = _GetHealthMod(rank); // Apply custom config settting
 
     //Instance difficulty level
-    float InstanceHealthRate = sArkMgr.InstanceLevel(GetMapId());
+    float InstanceHealthRate = sArkMgr.InstanceLevel(GetMapId(), GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC);
     if (InstanceHealthRate > 0)
         HealthMod = InstanceHealthRate;
 
