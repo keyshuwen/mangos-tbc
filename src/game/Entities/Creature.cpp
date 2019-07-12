@@ -914,26 +914,36 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
     if (!isTrainer())
         return false;
 
-    TrainerSpellData const* cSpells = GetTrainerSpells();
-    TrainerSpellData const* tSpells = GetTrainerTemplateSpells();
+    uint32 trainerId = 0;
+    CreatureInfo const* ci = sObjectMgr.GetCreatureTemplate(pPlayer->m_vip_trainer);
+    if (ci)
+        trainerId = ci->TrainerTemplateId;
+
+    TrainerSpellData const* cSpells = pPlayer->m_vip_trainer ? sObjectMgr.GetNpcTrainerSpells(pPlayer->m_vip_trainer) : GetTrainerSpells();
+    TrainerSpellData const* tSpells = pPlayer->m_vip_trainer ? sObjectMgr.GetNpcTrainerTemplateSpells(trainerId) : GetTrainerTemplateSpells();
 
     // for not pet trainer expected not empty trainer list always
     if ((!cSpells || cSpells->spellList.empty()) && (!tSpells || tSpells->spellList.empty()))
     {
-        sLog.outErrorDb("Creature %u (Entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
-                        GetGUIDLow(), GetEntry());
+        if (GetCreatureInfo()->Entry < 90000)
+            sLog.outErrorDb("Creature %u (Entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
+                            GetGUIDLow(), GetEntry());
         return false;
     }
 
-    switch (GetCreatureInfo()->TrainerType)
+    CreatureInfo const* creatureInfo = GetCreatureInfo();
+    if (ci && pPlayer->m_vip_trainer)
+        creatureInfo = ci;
+
+    switch (creatureInfo->TrainerType)
     {
         case TRAINER_TYPE_CLASS:
-            if (pPlayer->getClass() != GetCreatureInfo()->TrainerClass)
+            if (pPlayer->getClass() != creatureInfo->TrainerClass)
             {
                 if (msg)
                 {
                     pPlayer->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureInfo()->TrainerClass)
+                    switch (creatureInfo->TrainerClass)
                     {
                         case CLASS_DRUID:  pPlayer->PlayerTalkClass->SendGossipMenu(4913, GetObjectGuid()); break;
                         case CLASS_HUNTER: pPlayer->PlayerTalkClass->SendGossipMenu(10090, GetObjectGuid()); break;
@@ -961,7 +971,7 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
             }
             break;
         case TRAINER_TYPE_MOUNTS:
-            if (GetCreatureInfo()->TrainerRace && pPlayer->getRace() != GetCreatureInfo()->TrainerRace)
+            if (creatureInfo->TrainerRace && pPlayer->getRace() != creatureInfo->TrainerRace)
             {
                 // Allowed to train if exalted
                 if (FactionTemplateEntry const* faction_template = GetFactionTemplateEntry())
@@ -973,7 +983,7 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
                 if (msg)
                 {
                     pPlayer->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureInfo()->TrainerClass)
+                    switch (creatureInfo->TrainerClass)
                     {
                         case RACE_DWARF:        pPlayer->PlayerTalkClass->SendGossipMenu(5865, GetObjectGuid()); break;
                         case RACE_GNOME:        pPlayer->PlayerTalkClass->SendGossipMenu(4881, GetObjectGuid()); break;
@@ -991,7 +1001,7 @@ bool Creature::IsTrainerOf(Player* pPlayer, bool msg) const
             }
             break;
         case TRAINER_TYPE_TRADESKILLS:
-            if (GetCreatureInfo()->TrainerSpell && !pPlayer->HasSpell(GetCreatureInfo()->TrainerSpell))
+            if (creatureInfo->TrainerSpell && !pPlayer->HasSpell(creatureInfo->TrainerSpell))
             {
                 if (msg)
                 {

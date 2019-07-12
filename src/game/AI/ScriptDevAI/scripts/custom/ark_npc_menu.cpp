@@ -217,6 +217,15 @@ bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSe
                 pPlayer->CastSpell(pPlayer, itr->map, TRIGGERED_NONE);
         }
         break;
+    case 1012: //训练师
+        if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
+        {
+            if (itr->map > 0)
+                pPlayer->GetSession()->SendTrainerList(pCreature->GetObjectGuid(), itr->map);
+            else
+                pPlayer->SEND_TRAINERLIST(pCreature->GetObjectGuid());
+            return true;
+        }
     case 1100://重置副本
         if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
         {

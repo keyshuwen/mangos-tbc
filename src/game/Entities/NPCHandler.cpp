@@ -116,7 +116,7 @@ static void SendTrainerSpellHelper(WorldPacket& data, TrainerSpell const* tSpell
     data << uint32(0);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid) const
+void WorldSession::SendTrainerList(ObjectGuid guid, uint32 trainerEntry) const
 {
     DEBUG_LOG("WORLD: SendTrainerList");
 
@@ -127,6 +127,8 @@ void WorldSession::SendTrainerList(ObjectGuid guid) const
         return;
     }
 
+    GetPlayer()->m_vip_trainer = trainerEntry;
+
     // trainer list loaded at check;
     if (!unit->IsTrainerOf(_player, true))
         return;
@@ -135,8 +137,13 @@ void WorldSession::SendTrainerList(ObjectGuid guid) const
     if (!ci)
         return;
 
-    TrainerSpellData const* cSpells = unit->GetTrainerSpells();
-    TrainerSpellData const* tSpells = unit->GetTrainerTemplateSpells();
+    uint32 trainerId = 0;
+    CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(_player->m_vip_trainer);
+    if (cInfo)
+        trainerId = cInfo->TrainerTemplateId;
+
+    TrainerSpellData const* cSpells = trainerEntry ? sObjectMgr.GetNpcTrainerSpells(trainerEntry) : unit->GetTrainerSpells();
+    TrainerSpellData const* tSpells = trainerEntry ? sObjectMgr.GetNpcTrainerTemplateSpells(trainerId) : unit->GetTrainerTemplateSpells();
 
     if (!cSpells && !tSpells)
     {
@@ -240,9 +247,13 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket& recv_data)
     if (!unit->IsTrainerOf(_player, true))
         return;
 
-    // check present spell in trainer spell list
-    TrainerSpellData const* cSpells = unit->GetTrainerSpells();
-    TrainerSpellData const* tSpells = unit->GetTrainerTemplateSpells();
+    uint32 trainerId = 0;
+    CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(_player->m_vip_trainer);
+    if (cInfo)
+        trainerId = cInfo->TrainerTemplateId;
+
+    TrainerSpellData const* cSpells = GetPlayer()->m_vip_trainer ? sObjectMgr.GetNpcTrainerSpells(GetPlayer()->m_vip_trainer) : unit->GetTrainerSpells();
+    TrainerSpellData const* tSpells = GetPlayer()->m_vip_trainer ? sObjectMgr.GetNpcTrainerTemplateSpells(trainerId) : unit->GetTrainerTemplateSpells();
 
     if (!cSpells && !tSpells)
         return;

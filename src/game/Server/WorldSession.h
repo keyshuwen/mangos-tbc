@@ -247,7 +247,7 @@ class WorldSession
         void SendNameQueryOpcodeFromDB(ObjectGuid guid) const;
         static void SendNameQueryOpcodeFromDBCallBack(QueryResult* result, uint32 accountId);
 
-        void SendTrainerList(ObjectGuid guid) const;
+        void SendTrainerList(ObjectGuid guid, uint32 trainerEntry = 0) const;
 
         void SendListInventory(ObjectGuid guid, uint32 vendorEntry = 0) const;
         bool CheckBanker(ObjectGuid guid) const;

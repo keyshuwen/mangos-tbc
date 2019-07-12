@@ -663,6 +663,7 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
     m_talent = 0;
     m_extra_talent = 0;
     m_vip_shop = 0;
+    m_vip_trainer = 0;
 }
 
 Player::~Player()
