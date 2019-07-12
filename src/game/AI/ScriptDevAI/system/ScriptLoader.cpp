@@ -11,6 +11,7 @@ extern void AddSC_battleground();
 extern void AddSC_onevents();
 extern void AddSC_ark_npc_menu();
 extern void AddSC_ark_item_enchantment();
+extern void AddSC_ark_item_transmog();
 
 // examples
 extern void AddSC_example_creature();
@@ -362,6 +363,7 @@ void AddScripts()
     AddSC_onevents();
     AddSC_ark_npc_menu();
     AddSC_ark_item_enchantment();
+    AddSC_ark_item_transmog();
 
     // examples
     AddSC_example_creature();

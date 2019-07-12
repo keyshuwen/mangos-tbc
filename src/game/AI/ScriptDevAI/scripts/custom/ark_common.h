@@ -197,6 +197,8 @@ public:
         return itr != _arkItemEnchantmentStore.end() ? &itr->second : nullptr;
     }
 
+    // transmogrification
+    void LoadArkItemTransmog(Player* player);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;

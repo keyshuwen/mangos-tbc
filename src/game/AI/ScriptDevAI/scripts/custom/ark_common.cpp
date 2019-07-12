@@ -620,3 +620,21 @@ void ArkMgr::LoadArkItemEnchantmentDB()
 
     sLog.outString(">> Loaded %u ARK Item Enchantment Config", count);
 }
+
+void ArkMgr::LoadArkItemTransmog(Player* player)
+{
+    QueryResult* transmog = CharacterDatabase.PQuery("SELECT slot, item_guid FROM _ark_characters_transmog WHERE guid = '%u'", player->GetGUIDLow());
+    if (transmog)
+    {
+        do
+        {
+            Field* fields = transmog->Fetch();
+            Item* pItem = player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, fields[1].GetUInt32()));
+            if (pItem)
+                player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_0 + (fields[0].GetUInt8() * MAX_VISIBLE_ITEM_OFFSET), pItem->GetEntry());
+
+        } while (transmog->NextRow());
+
+        delete transmog;
+    }
+}

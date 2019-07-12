@@ -17,6 +17,9 @@ void OnLogin(Player* pPlayer, bool Loginfirst)
 {
     sArkMgr.SetAccountExtra(pPlayer->GetSession()->GetAccountId());
 
+    // transmogrification
+    sArkMgr.LoadArkItemTransmog(pPlayer);
+
     ArkConfig const* itr;
     //vip login
     pPlayer->m_vipLevel = sArkMgr.GetVipLevel(pPlayer->GetSession()->GetAccountId());
