@@ -181,9 +181,11 @@ void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/)
 }
 
 //This function is called just before the players level changes   
-void OnPlayerLevelChanged(Player* /*pPlayer*/, uint8 /*oldLevel*/, uint8 /*newLevel*/)
+void OnPlayerLevelChanged(Player* pPlayer, uint8 oldLevel, uint8 newLevel)
 {
-
+    ArkConfig const* itr = sArkMgr.GetArkConfig("Player.learn.trainer");
+    if (itr && itr->value >= 1 && oldLevel < newLevel)
+        sArkMgr.LearnLevelTrainer(pPlayer);
 }
 
 //This function is called when the player resets his talents  

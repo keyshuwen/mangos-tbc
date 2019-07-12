@@ -638,3 +638,78 @@ void ArkMgr::LoadArkItemTransmog(Player* player)
         delete transmog;
     }
 }
+
+void ArkMgr::LearnTrainer(Player* player, uint32 templateid)
+{
+    TrainerSpellData const* tSpells = sObjectMgr.GetNpcTrainerTemplateSpells(templateid);
+    if (!tSpells)
+        return;
+
+    for (auto itr = tSpells->spellList.begin(); itr != tSpells->spellList.end(); ++itr)
+    {
+        TrainerSpell const* trainer_spell = &itr->second;
+
+        // Not found anywhere, cheating?
+        if (!trainer_spell)
+            continue;
+
+        uint32 spellId = trainer_spell->spell;
+
+        if (!spellId)
+            continue;
+
+        uint32 reqLevel = 0;
+        if (!player->IsSpellFitByClassAndRace(trainer_spell->learnedSpell, &reqLevel))
+            continue;
+
+        reqLevel = trainer_spell->isProvidedReqLevel ? trainer_spell->reqLevel : std::max(reqLevel, trainer_spell->reqLevel);
+        if (player->GetTrainerSpellState(trainer_spell, reqLevel) != TRAINER_SPELL_GREEN)
+            continue;
+
+        // learn explicitly or cast explicitly
+        // TODO - Are these spells really cast correctly this way?
+        if (trainer_spell->IsCastable())
+            player->CastSpell(player, trainer_spell->spell, TRIGGERED_OLD_TRIGGERED);
+        else
+            player->learnSpell(spellId, false);
+    }
+}
+
+void ArkMgr::LearnLevelTrainer(Player* player)
+{
+    if (player->getLevel() > sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
+        return;
+
+    switch (player->getClass())
+    {
+    case CLASS_WARRIOR:
+        LearnTrainer(player, 11);
+        break;
+    case CLASS_PALADIN:
+        LearnTrainer(player, 21);
+        break;
+    case CLASS_HUNTER:
+        LearnTrainer(player, 31);
+        break;
+    case CLASS_ROGUE:
+        LearnTrainer(player, 41);
+        break;
+    case CLASS_PRIEST:
+        LearnTrainer(player, 51);
+        break;
+    case CLASS_SHAMAN:
+        LearnTrainer(player, 61);
+        break;
+    case CLASS_MAGE:
+        LearnTrainer(player, 71);
+        break;
+    case CLASS_WARLOCK:
+        LearnTrainer(player, 81);
+        break;
+    case CLASS_DRUID:
+        LearnTrainer(player, 91);
+        break;
+    default:
+        break;
+    }
+}

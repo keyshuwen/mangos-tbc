@@ -26,6 +26,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "Tools/Language.h"
+#include "World/World.h"
 #include <map>
 #include <unordered_map>
 
@@ -199,6 +200,10 @@ public:
 
     // transmogrification
     void LoadArkItemTransmog(Player* player);
+
+    // learn class trainer
+    void LearnTrainer(Player* player, uint32 templateid);
+    void LearnLevelTrainer(Player* player);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
