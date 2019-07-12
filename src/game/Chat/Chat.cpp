@@ -788,6 +788,7 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand arkCommandTable[] =
     {
+        { "autobroadcast",  SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAutobroadcastCommand, "", nullptr },
         { "jf",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAddjfCommand,               "", nullptr },
         { "ReloadConfig",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkConfigCommand,     "", nullptr },
         { "ReloadVipSystem",SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkVipSystemCommand,  "", nullptr },

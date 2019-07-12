@@ -7214,6 +7214,14 @@ bool ChatHandler::HandleLinkCheckCommand(char* args)
     return true;
 }
 
+bool ChatHandler::HandleReloadAutobroadcastCommand(char* /*args*/)
+{
+    sLog.outString("Re-Loading Autobroadcast...");
+    sWorld.LoadAutobroadcasts();
+    SendGlobalSysMessage("DB table `autobroadcast` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleAddjfCommand(char* args)
 {
     if (!*args)

@@ -689,6 +689,7 @@ class ChatHandler
         bool HandleLinkCheckCommand(char* args);
 
         //Custom Commands
+        bool HandleReloadAutobroadcastCommand(char* args);
         bool HandleAddjfCommand(char* args);
         bool HandleReloadArkVipSystemCommand(char* args);
         bool HandleArkAddvipCommand(char* args);

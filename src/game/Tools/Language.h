@@ -1035,6 +1035,7 @@ enum MangosStrings
     LANG_ARK_PLAYER_ADD_JF              = 90006,
     LANG_ARK_PLAYER_COST_JF             = 90007,
     LANG_ARK_PLAYER_LACK_JF             = 90008,
+    LANG_ARK_AUTO_BROADCAST             = 90009,          //autobroadcast
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000999999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
