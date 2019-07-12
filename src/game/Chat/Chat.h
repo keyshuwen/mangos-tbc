@@ -697,6 +697,7 @@ class ChatHandler
         bool HandleArkWorldChatCommand(char* args);
         bool HandleArkFactionChatCommand(char* args);
         bool HandleReloadArkMenuCommand(char* args);
+        bool HandleReloadArkEnchantmentCommand(char* args);
 
         //! Development Commands
         bool HandleSaveAllCommand(char* args);

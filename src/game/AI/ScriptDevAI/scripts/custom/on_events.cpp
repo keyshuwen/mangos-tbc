@@ -201,6 +201,8 @@ void OnStartup()
     sArkMgr.LoadArkInstanceDB();
     sLog.outString("Loaded ARK Npc Menu Config...");
     sArkMgr.LoadArkNpcMenuDB();
+    sLog.outString("Loaded ARK Item Enchantment Config...");
+    sArkMgr.LoadArkItemEnchantmentDB();
     sLog.outString("============================================================================================");
     sLog.outString("Ark Loaded end, Now you ready to play.");
     sLog.outString("");

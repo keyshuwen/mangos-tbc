@@ -475,6 +475,18 @@ bool ScriptDevAIMgr::OnItemUse(Player* pPlayer, Item* pItem, SpellCastTargets co
     return pTempScript->pItemUse(pPlayer, pItem, targets);
 }
 
+bool ScriptDevAIMgr::OnItemWrapUse(Player* pPlayer, Item* pItem, Item* targets)
+{
+    Script* pTempScript = GetScript(pItem->GetProto()->ScriptId);
+
+    if (!pTempScript || !pTempScript->pItemWrapUse)
+        return false;
+
+    pPlayer->PlayerTalkClass->ClearMenus();
+
+    return pTempScript->pItemWrapUse(pPlayer, pItem, targets);
+}
+
 bool ScriptDevAIMgr::OnItemLoot(Player* pPlayer, Item* pItem, bool apply)
 {
     Script* pTempScript = GetScript(pItem->GetProto()->ScriptId);

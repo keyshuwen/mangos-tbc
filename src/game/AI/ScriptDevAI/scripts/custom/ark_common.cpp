@@ -492,10 +492,10 @@ void ArkMgr::LoadArkNpcMenuDB()
     sLog.outString(">> Loaded %u ARK npc Menu Config", count);
 }
 
-std::string ArkMgr::GetItemNameByEntry(Player* player, uint32 itemId) const
+std::string ArkMgr::GetItemNameByEntry(Player* player, uint32 entry, bool showchat) const
 {
     std::string name = "Unknown";
-    ItemPrototype const* itemProto = sObjectMgr.GetItemPrototype(itemId);
+    ItemPrototype const* itemProto = sObjectMgr.GetItemPrototype(entry);
     if (itemProto)
     {
         name = itemProto->Name1;
@@ -510,7 +510,11 @@ std::string ArkMgr::GetItemNameByEntry(Player* player, uint32 itemId) const
         else
             color = ArkItemQualityColors[itemProto->Quality];
 
-        tempname = "|" + color + "|Hitem:" + std::to_string(itemId) + ":0:0:0:0:0:0:0|h[" + name + "]|h|r";
+        if (showchat)
+            tempname = "|" + color + "|Hitem:" + std::to_string(entry) + ":0:0:0:0:0:0:0|h[" + name + "]|h|r";
+        else
+            tempname = "|" + color + "[" + name + "]|r";
+
         return tempname;
     }
     return name;
@@ -558,4 +562,61 @@ bool ArkMgr::AddItem(Player* player, uint32 itemId, uint32 count)
         return false;
 
     return true;
+}
+
+void ArkMgr::LoadArkItemEnchantmentDB()
+{
+    // For reload case
+    _arkItemEnchantmentStore.clear();
+
+    QueryResult* result = WorldDatabase.Query("SELECT * FROM _ark_item_enchantment");
+
+    if (!result)
+    {
+        sLog.outErrorDb(">> Loaded 0 ARK npc menu Config. DB table `_ark_item_enchantment` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ArkItemEnchantment itr;
+
+        itr.entry = fields[0].GetUInt32();
+        itr.title1 = fields[1].GetString();
+        itr.title2 = fields[2].GetString();
+        itr.title3 = fields[3].GetString();
+        itr.title4 = fields[4].GetString();
+        itr.title5 = fields[5].GetString();
+        itr.enchantmentid1 = fields[6].GetUInt32();
+        itr.enchantmentid2 = fields[7].GetUInt32();
+        itr.enchantmentid3 = fields[8].GetUInt32();
+        itr.enchantmentid4 = fields[9].GetUInt32();
+        itr.enchantmentid5 = fields[10].GetUInt32();
+        itr.inventoryType = fields[11].GetUInt32();
+        itr.chance = fields[12].GetUInt32();
+        itr.jf = fields[13].GetUInt32();
+        itr.gold = fields[14].GetUInt32();
+        itr.vipLevel = fields[15].GetUInt32();
+        itr.reqItem1 = fields[16].GetUInt32();
+        itr.reqItem2 = fields[17].GetUInt32();
+        itr.reqItem3 = fields[18].GetUInt32();
+        itr.reqItem4 = fields[19].GetUInt32();
+        itr.reqItem5 = fields[20].GetUInt32();
+        itr.reqCount1 = fields[21].GetUInt32();
+        itr.reqCount2 = fields[22].GetUInt32();
+        itr.reqCount3 = fields[23].GetUInt32();
+        itr.reqCount4 = fields[24].GetUInt32();
+        itr.reqCount5 = fields[25].GetUInt32();
+        //insert
+        _arkItemEnchantmentStore[itr.entry] = itr;
+
+        ++count;
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString(">> Loaded %u ARK Item Enchantment Config", count);
 }

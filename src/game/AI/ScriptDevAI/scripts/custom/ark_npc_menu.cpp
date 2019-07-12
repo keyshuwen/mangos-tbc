@@ -102,7 +102,7 @@ bool _NpcTeleportCostCheck(Player* pPlayer, Creature* pCreature, uint32 uiSender
     case 5: // 需要物品
         if (pPlayer->GetItemCount(itr->needValue) < (uint32)abs(itr->needValue2))
         {
-            std::string name = sArkMgr.GetItemNameByEntry(pPlayer, itr->needValue);
+            std::string name = sArkMgr.GetItemNameByEntry(pPlayer, itr->needValue, true);
             ChatHandler(pPlayer).PSendSysMessage("[系统]: 背包物品不足, 需要物品, %s|cff00ff00x%u|r.", name.c_str(), (uint32)abs(itr->needValue2));
             pPlayer->CLOSE_GOSSIP_MENU();
             return false;

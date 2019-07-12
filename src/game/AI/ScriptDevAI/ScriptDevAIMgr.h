@@ -66,13 +66,13 @@ struct Script
 {
     Script() :
         pOnLogin(nullptr), pOnLogout(nullptr), pOnPVPKill(nullptr), pOnCreatureKill(nullptr), pOnPlayerKilledByCreature(nullptr),
-        pOnLevelChanged(nullptr), pOnTalentsReset(nullptr), pOnStartup(nullptr), pOnShutdown(nullptr),
+        pOnLevelChanged(nullptr), pOnTalentsReset(nullptr), pOnStartup(nullptr), pOnShutdown(nullptr), 
         pGossipHello(nullptr), pGossipHelloGO(nullptr), pGossipSelect(nullptr), pGossipSelectGO(nullptr), pGossipSelectItem(nullptr),
         pGossipSelectWithCode(nullptr), pGossipSelectGOWithCode(nullptr), pGossipSelectItemWithCode(nullptr),
         pDialogStatusNPC(nullptr), pDialogStatusGO(nullptr),
         pQuestAcceptNPC(nullptr), pQuestAcceptGO(nullptr), pQuestAcceptItem(nullptr),
         pQuestRewardedNPC(nullptr), pQuestRewardedGO(nullptr),
-        pGOUse(nullptr), pItemUse(nullptr), pItemLoot(nullptr), pAreaTrigger(nullptr), pProcessEventId(nullptr),
+        pGOUse(nullptr), pItemUse(nullptr), pItemWrapUse(nullptr), pItemLoot(nullptr), pAreaTrigger(nullptr), pProcessEventId(nullptr),
         pEffectDummyNPC(nullptr), pEffectDummyGO(nullptr), pEffectDummyItem(nullptr), pEffectScriptEffectNPC(nullptr),
         pEffectAuraDummy(nullptr), pTrapSearching(nullptr), GetGameObjectAI(nullptr), GetAI(nullptr), GetInstanceData(nullptr)
     {}
@@ -105,6 +105,7 @@ struct Script
     bool (*pQuestRewardedGO)(Player*, GameObject*, Quest const*);
     bool (*pGOUse)(Player*, GameObject*);
     bool (*pItemUse)(Player*, Item*, SpellCastTargets const&);
+    bool (*pItemWrapUse)(Player*, Item*, Item*);
     bool (*pItemLoot)(Player*, Item*, bool);
     bool (*pAreaTrigger)(Player*, AreaTriggerEntry const*);
     bool (*pProcessEventId)(uint32, Object*, Object*, bool);
@@ -157,6 +158,7 @@ class ScriptDevAIMgr
         bool OnGameObjectUse(Player* pPlayer, GameObject* pGo);
         std::function<bool(Unit*)>* OnTrapSearch(GameObject* go);
         bool OnItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets);
+        bool OnItemWrapUse(Player* pPlayer, Item* pItem, Item* targets);
         bool OnItemLoot(Player* pPlayer, Item* pItem, bool apply);
         bool OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* atEntry);
         bool OnProcessEvent(uint32 uiEventId, Object* pSource, Object* pTarget, bool bIsStart);

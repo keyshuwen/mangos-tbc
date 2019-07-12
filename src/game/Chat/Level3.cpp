@@ -7511,3 +7511,11 @@ bool ChatHandler::HandleReloadArkMenuCommand(char* /*args*/)
     SendGlobalSysMessage("DB table `_ark_npc_menu` reloaded.");
     return true;
 }
+
+bool ChatHandler::HandleReloadArkEnchantmentCommand(char* /*args*/)
+{
+    sLog.outString("Re-Loading `_ark_item_enchantment` Table!");
+    sArkMgr.LoadArkItemEnchantmentDB();
+    SendGlobalSysMessage("DB table `_ark_item_enchantment` reloaded.");
+    return true;
+}

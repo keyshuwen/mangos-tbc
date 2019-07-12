@@ -788,13 +788,14 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand arkCommandTable[] =
     {
-        { "autobroadcast",  SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAutobroadcastCommand, "", nullptr },
-        { "jf",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAddjfCommand,               "", nullptr },
-        { "ReloadConfig",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkConfigCommand,     "", nullptr },
-        { "ReloadVipSystem",SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkVipSystemCommand,  "", nullptr },
-        { "vip",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleArkAddvipCommand,           "", nullptr },
-        { "ReloadMenu",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkMenuCommand,       "", nullptr },
-        { nullptr,          0,                  false, nullptr,                                        "", nullptr }
+        { "autobroadcast",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAutobroadcastCommand,       "", nullptr },
+        { "jf",                    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAddjfCommand,                     "", nullptr },
+        { "vip",                   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleArkAddvipCommand,                 "", nullptr },
+        { "ReloadConfig",          SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkConfigCommand,           "", nullptr },
+        { "ReloadVipSystem",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkVipSystemCommand,        "", nullptr },
+        { "ReloadMenu",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkMenuCommand,             "", nullptr },
+        { "ReloadEnchantment",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkEnchantmentCommand,      "", nullptr },
+        { nullptr,                 0,                  false, nullptr,                                              "", nullptr }
     };
 
     static ChatCommand commandTable[] =

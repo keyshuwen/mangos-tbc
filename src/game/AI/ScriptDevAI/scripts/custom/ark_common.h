@@ -93,6 +93,36 @@ const std::string ArkItemQualityColors[MAX_ITEM_QUALITY] =
     "cffe6cc80"         // LIGHT YELLOW
 };
 
+struct ArkItemEnchantment
+{
+    uint32 entry;
+    std::string title1;
+    std::string title2;
+    std::string title3;
+    std::string title4;
+    std::string title5;
+    uint32 enchantmentid1;
+    uint32 enchantmentid2;
+    uint32 enchantmentid3;
+    uint32 enchantmentid4;
+    uint32 enchantmentid5;
+    uint32 inventoryType;
+    uint32 chance;
+    uint32 jf;
+    uint32 gold;
+    uint32 vipLevel;
+    uint32 reqItem1;
+    uint32 reqItem2;
+    uint32 reqItem3;
+    uint32 reqItem4;
+    uint32 reqItem5;
+    uint32 reqCount1;
+    uint32 reqCount2;
+    uint32 reqCount3;
+    uint32 reqCount4;
+    uint32 reqCount5; 
+};
+
 class ArkMgr
 {
 public:
@@ -153,15 +183,26 @@ public:
     }
 
     std::map<uint32, ArkMenuConfig> const& GetNpcMenus() const { return _arkNpcMenuStore; }
-    std::string GetItemNameByEntry(Player* player, uint32 itemId) const;
+    std::string GetItemNameByEntry(Player* player, uint32 entry, bool showchat = false) const;
 
     bool CheckNullBag(Player* player, uint32 itemId, uint32 count);
     bool AddItem(Player* player, uint32 itemId, uint32 count);
+
+    //Item Enchantment
+    void LoadArkItemEnchantmentDB();
+    typedef std::unordered_map<uint32, ArkItemEnchantment> ArkItemEnchantmentContainer;
+    ArkItemEnchantment const* GetArkItemEnchantmentConfig(uint32 itemid) const
+    {
+        ArkItemEnchantmentContainer::const_iterator itr = _arkItemEnchantmentStore.find(itemid);
+        return itr != _arkItemEnchantmentStore.end() ? &itr->second : nullptr;
+    }
+
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
     ArkInstanceContainer _arkInstanceStore;
     ArkNpcMenuContainer _arkNpcMenuStore;
+    ArkItemEnchantmentContainer _arkItemEnchantmentStore;
 };
 
 #define sArkMgr MaNGOS::Singleton<ArkMgr>::Instance()

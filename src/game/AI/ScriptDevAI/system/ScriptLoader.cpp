@@ -10,6 +10,7 @@ extern void AddSC_battleground();
 // custom
 extern void AddSC_onevents();
 extern void AddSC_ark_npc_menu();
+extern void AddSC_ark_item_enchantment();
 
 // examples
 extern void AddSC_example_creature();
@@ -360,6 +361,7 @@ void AddScripts()
     // custom
     AddSC_onevents();
     AddSC_ark_npc_menu();
+    AddSC_ark_item_enchantment();
 
     // examples
     AddSC_example_creature();
