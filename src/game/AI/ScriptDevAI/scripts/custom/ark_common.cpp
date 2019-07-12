@@ -744,3 +744,47 @@ void ArkMgr::LearnLevelTrainer(Player* player)
         break;
     }
 }
+
+void ArkMgr::SetAccountRecharge(uint32 accountId)
+{
+    uint32 jf = GetRechargejf(accountId);
+    if (jf > 0)
+    {
+        Addjf(accountId, jf);
+        LoginDatabase.PExecute("UPDATE _ark_account_recharge SET jf = 0 WHERE id = %u", accountId);
+    }
+}
+
+uint32 ArkMgr::GetRechargejf(uint32 accountId) const
+{
+    QueryResult* result = LoginDatabase.PQuery("SELECT jf FROM _ark_account_recharge WHERE id = %u", accountId);
+
+    if (result)
+    {
+        int32 jf = (*result)[0].GetInt32();
+        delete result;
+
+        return jf;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+uint32 ArkMgr::GetRechargeAll(uint32 accountId) const
+{
+    QueryResult* result = LoginDatabase.PQuery("SELECT amount FROM _ark_account_recharge WHERE id = %u", accountId);
+
+    if (result)
+    {
+        int32 amount = (*result)[0].GetInt32();
+        delete result;
+
+        return amount;
+    }
+    else
+    {
+        return 0;
+    }
+}

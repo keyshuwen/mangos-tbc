@@ -148,12 +148,19 @@ bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSe
     case 1002://积分查询
         if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
         {
-            pPlayer->GetSession()->SendNotification("|cFFFFFF33你当前帐户积分：|r|cFF33FF00%d|r ", sArkMgr.Getjf(pPlayer->GetSession()->GetAccountId()));
+            pPlayer->GetSession()->SendNotification("|cFFFFFF33你当前帐户积分：|r|cFF33FF00%u|r ", sArkMgr.Getjf(pPlayer->GetSession()->GetAccountId()));
         }
         break;
-    //case 1003://领取充值积分
-    //    player->GetpaimaiJF();
-    //    break;
+    case 1003://领取充值积分
+        {
+            uint32 AccountId = pPlayer->GetSession()->GetAccountId();
+            uint32 Accountjf = sArkMgr.Getjf(AccountId);
+            uint32 Rechargejf = sArkMgr.GetRechargejf(AccountId);
+            uint32 RechargeAll = sArkMgr.GetRechargeAll(AccountId);
+            sArkMgr.SetAccountRecharge(AccountId);
+            ChatHandler(pPlayer).PSendSysMessage("[系统]: 帐户剩余积分[|cFF33FF00%u|r], 领取充值积分[|cFF33FF00%u|r], 累计充值[|cFF33FF00%u|r]. ", Accountjf,  Rechargejf, RechargeAll);
+        }
+        break;
     case 1004: // 修理装备
         if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
         {

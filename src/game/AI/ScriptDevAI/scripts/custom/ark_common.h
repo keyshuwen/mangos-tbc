@@ -206,6 +206,10 @@ public:
     // learn class trainer
     void LearnTrainer(Player* player, uint32 templateid);
     void LearnLevelTrainer(Player* player);
+
+    void SetAccountRecharge(uint32 accountId);
+    uint32 GetRechargejf(uint32 accountId) const;
+    uint32 GetRechargeAll(uint32 accountId) const;
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;

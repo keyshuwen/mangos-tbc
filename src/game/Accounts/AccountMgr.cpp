@@ -67,6 +67,9 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     LoginDatabase.Execute(
         "INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist,account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
 
+    if (!LoginDatabase.PExecute("INSERT INTO _ark_account_recharge(id, jf, amount) SELECT account.id, 0, 0 FROM account LEFT JOIN _ark_account_recharge ON _ark_account_recharge.id=account.id WHERE _ark_account_recharge.id IS NULL"))
+        return AOR_DB_INTERNAL_ERROR;
+
     return AOR_OK;                                          // everything's fine
 }
 
@@ -86,6 +89,9 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     if (!LoginDatabase.PExecute("INSERT INTO account(username,sha_pass_hash,joindate,expansion) VALUES('%s','%s',NOW(),'%u')", username.c_str(), CalculateShaPassHash(username, password).c_str(), expansion))
         return AOR_DB_INTERNAL_ERROR;                       // unexpected error
     LoginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist,account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
+
+    if (!LoginDatabase.PExecute("INSERT INTO _ark_account_recharge(id, jf, amount) SELECT account.id, 0, 0 FROM account LEFT JOIN _ark_account_recharge ON _ark_account_recharge.id=account.id WHERE _ark_account_recharge.id IS NULL"))
+        return AOR_DB_INTERNAL_ERROR;
 
     return AOR_OK;                                          // everything's fine
 }
@@ -123,7 +129,8 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid) const
 
     bool res =
         LoginDatabase.PExecute("DELETE FROM account WHERE id='%u'", accid) &&
-        LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid='%u'", accid);
+        LoginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid='%u'", accid) &&
+        LoginDatabase.PExecute("DELETE FROM _ark_account_recharge WHERE id='%u'", accid);
 
     LoginDatabase.CommitTransaction();
 
