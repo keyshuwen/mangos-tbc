@@ -788,3 +788,69 @@ uint32 ArkMgr::GetRechargeAll(uint32 accountId) const
         return 0;
     }
 }
+
+void ArkMgr::LoadArkStatsLimitDB()
+{
+    // For reload case
+    _arkStatsLimitStore.clear();
+
+    QueryResult* result = WorldDatabase.Query("SELECT class, Agility_crit, Agility_dodge, Intellect_crit FROM _ark_stats_limit");
+
+    if (!result)
+    {
+        sLog.outErrorDb(">> Loaded 0 ARK Stats Limit Config. DB table `_ark_stats_limit` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ArkStatsLimitConfig itr;
+        uint32 pClass = fields[0].GetUInt32();
+        itr.Agility_crit = fields[1].GetFloat();
+        itr.Agility_dodge = fields[2].GetFloat();
+        itr.Intellect_crit = fields[3].GetFloat();
+
+        //insert
+        _arkStatsLimitStore[pClass] = itr;
+
+        ++count;
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString(">> Loaded %u ARK Stats Limit Config", count);
+}
+
+float ArkMgr::GetStatsLimit(uint32 Class, uint32 StatsType) const
+{
+    float val = 0.0f;
+    ArkStatsLimitConfig const* itr = GetArkStatsLimitConfig(Class);
+    if (itr)
+    {
+        switch (StatsType)
+        {
+        case 1:   // Agility crit
+            {
+                if (itr->Agility_crit)
+                    val = itr->Agility_crit;
+            }
+            break;
+        case 2:   // Agility dodge
+            {
+                if (itr->Agility_dodge)
+                    val = itr->Agility_dodge;
+            }
+            break;
+        case 3:   // Intellect crit
+            {
+                if (itr->Intellect_crit)
+                    val = itr->Intellect_crit;
+            }
+            break;
+        }
+    }
+    return val;
+}

@@ -126,6 +126,14 @@ struct ArkItemEnchantment
     uint32 reqCount5; 
 };
 
+struct ArkStatsLimitConfig
+{
+    uint32 Class;
+    float Agility_crit;
+    float Agility_dodge;
+    float Intellect_crit;
+};
+
 class ArkMgr
 {
 public:
@@ -210,12 +218,24 @@ public:
     void SetAccountRecharge(uint32 accountId);
     uint32 GetRechargejf(uint32 accountId) const;
     uint32 GetRechargeAll(uint32 accountId) const;
+
+    // Stats Limits
+    void LoadArkStatsLimitDB();
+    typedef std::unordered_map<uint32, ArkStatsLimitConfig> ArkStatsLimitContainer;
+    ArkStatsLimitConfig const* GetArkStatsLimitConfig(uint32 Class) const
+    {
+        ArkStatsLimitContainer::const_iterator itr = _arkStatsLimitStore.find(Class);
+        return itr != _arkStatsLimitStore.end() ? &itr->second : nullptr;
+    }
+    float GetStatsLimit(uint32 Class, uint32 StatsType) const;
+
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
     ArkInstanceContainer _arkInstanceStore;
     ArkNpcMenuContainer _arkNpcMenuStore;
     ArkItemEnchantmentContainer _arkItemEnchantmentStore;
+    ArkStatsLimitContainer _arkStatsLimitStore;
 };
 
 #define sArkMgr MaNGOS::Singleton<ArkMgr>::Instance()

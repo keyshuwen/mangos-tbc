@@ -208,6 +208,8 @@ void OnStartup()
     sArkMgr.LoadArkNpcMenuDB();
     sLog.outString("Loaded ARK Item Enchantment Config...");
     sArkMgr.LoadArkItemEnchantmentDB();
+    sLog.outString("Loaded ARK Stats Limit Config...");
+    sArkMgr.LoadArkStatsLimitDB();
     sLog.outString("============================================================================================");
     sLog.outString("Ark Loaded end, Now you ready to play.");
     sLog.outString("");

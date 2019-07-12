@@ -5102,7 +5102,13 @@ float Player::GetMeleeCritFromAgility() const
     if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
-    float crit = critBase->base + GetStat(STAT_AGILITY) * critRatio->ratio;
+    float val = sArkMgr.GetStatsLimit(pclass, 1);
+    if (val)
+        val = GetStat(STAT_AGILITY) * critRatio->ratio > val ? val : GetStat(STAT_AGILITY) * critRatio->ratio;
+    else
+        val = GetStat(STAT_AGILITY) * critRatio->ratio;
+
+    float crit = critBase->base + val;
     return crit * 100.0f;
 }
 
@@ -5135,7 +5141,15 @@ float Player::GetDodgeFromAgility(float amount) const
     const GtChanceToMeleeCritEntry* entry = sGtChanceToMeleeCritStore.LookupEntry(index);
     if (!entry)
         return 0.0f;
-    return (100.0f * amount * entry->ratio * PLAYER_AGI_TO_CRIT_TO_DODGE[pclass]);
+
+    float val = sArkMgr.GetStatsLimit(pclass, 2);
+
+    if (val)
+        val = amount * entry->ratio * PLAYER_AGI_TO_CRIT_TO_DODGE[pclass] > val ? val : amount * entry->ratio * PLAYER_AGI_TO_CRIT_TO_DODGE[pclass];
+    else
+        val = amount * entry->ratio * PLAYER_AGI_TO_CRIT_TO_DODGE[pclass];
+
+    return (val * 100.0f);
 }
 
 float Player::GetSpellCritFromIntellect() const
@@ -5150,7 +5164,13 @@ float Player::GetSpellCritFromIntellect() const
     if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
-    float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
+    float val = sArkMgr.GetStatsLimit(pclass, 3);
+    if (val)
+        val = GetStat(STAT_INTELLECT) * critRatio->ratio > val ? val : GetStat(STAT_INTELLECT) * critRatio->ratio;
+    else
+        val = GetStat(STAT_INTELLECT) * critRatio->ratio;
+
+    float crit = critBase->base + val;
     return crit * 100.0f;
 }
 
