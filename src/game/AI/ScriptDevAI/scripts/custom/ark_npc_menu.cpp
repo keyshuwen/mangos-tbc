@@ -177,7 +177,10 @@ bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSe
     case 1006: //商店
         if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
         {
-            pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
+            if (itr->map > 0)
+                pPlayer->GetSession()->SendListInventory(pCreature->GetObjectGuid(), itr->map);
+            else
+                pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
             return true;
         }
         break;

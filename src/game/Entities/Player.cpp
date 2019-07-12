@@ -662,6 +662,7 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
     m_vipAura = 0;
     m_talent = 0;
     m_extra_talent = 0;
+    m_vip_shop = 0;
 }
 
 Player::~Player()
@@ -18464,8 +18465,8 @@ bool Player::BuyItemFromVendor(ObjectGuid vendorGuid, uint32 item, uint8 count, 
         return false;
     }
 
-    VendorItemData const* vItems = pCreature->GetVendorItems();
-    VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+    VendorItemData const* vItems = m_vip_shop ? sObjectMgr.GetNpcVendorItemList(m_vip_shop) : pCreature->GetVendorItems();
+    VendorItemData const* tItems = m_vip_shop ? sObjectMgr.GetNpcVendorTemplateItemList(m_vip_shop) : pCreature->GetVendorTemplateItems();
     if ((!vItems || vItems->Empty()) && (!tItems || tItems->Empty()))
     {
         SendBuyError(BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);

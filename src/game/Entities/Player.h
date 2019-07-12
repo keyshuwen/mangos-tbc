@@ -2283,6 +2283,7 @@ class Player : public Unit
         uint32 m_vipAura;
         uint32 m_talent;
         uint32 m_extra_talent;
+        uint32 m_vip_shop;
 
         // Public Save system functions
         void SaveItemToInventory(Item* item); // optimization for gift wrapping

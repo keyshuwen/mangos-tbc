@@ -705,7 +705,7 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket& recv_data)
     SendListInventory(guid);
 }
 
-void WorldSession::SendListInventory(ObjectGuid vendorguid) const
+void WorldSession::SendListInventory(ObjectGuid vendorguid, uint32 vendorEntry) const
 {
     DEBUG_LOG("WORLD: Sent SMSG_LIST_INVENTORY");
 
@@ -721,8 +721,9 @@ void WorldSession::SendListInventory(ObjectGuid vendorguid) const
     // Stop the npc if moving
     pCreature->StopMoving();
 
-    VendorItemData const* vItems = pCreature->GetVendorItems();
-    VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+    GetPlayer()->m_vip_shop = vendorEntry;
+    VendorItemData const* vItems = vendorEntry ? sObjectMgr.GetNpcVendorItemList(vendorEntry) : pCreature->GetVendorItems();
+    VendorItemData const* tItems = vendorEntry ? sObjectMgr.GetNpcVendorTemplateItemList(vendorEntry) : pCreature->GetVendorTemplateItems();
 
     if (!vItems && !tItems)
     {
