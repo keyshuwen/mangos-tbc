@@ -9,6 +9,7 @@ extern void AddSC_battleground();
 
 // custom
 extern void AddSC_onevents();
+extern void AddSC_ark_npc_menu();
 
 // examples
 extern void AddSC_example_creature();
@@ -358,6 +359,7 @@ void AddScripts()
 
     // custom
     AddSC_onevents();
+    AddSC_ark_npc_menu();
 
     // examples
     AddSC_example_creature();

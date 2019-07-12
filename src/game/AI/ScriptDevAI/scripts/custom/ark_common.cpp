@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,9 @@
  */
 
 #include "ark_common.h"
+#include <string.h>
+
+#pragma execution_character_set("UTF-8")
 
 
 ArkMgr::ArkMgr()
@@ -439,4 +442,120 @@ void ArkMgr::SetFlyInstantArriveDate(uint32 guid, uint32 value)
             CharacterDatabase.PExecute("INSERT INTO _ark_characters_extra (guid, fly_last_date) VALUES ('%u', '%s')", guid, sTimeDate);
 
     }
+}
+
+void ArkMgr::LoadArkNpcMenuDB()
+{
+    // For reload case
+    _arkNpcMenuStore.clear();
+
+    QueryResult* result = WorldDatabase.Query("SELECT * FROM _ark_npc_menu");
+
+    if (!result)
+    {
+        sLog.outErrorDb(">> Loaded 0 ARK npc menu Config. DB table `_ark_npc_menu` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ArkMenuConfig itr;
+
+        itr.menu_id = fields[0].GetUInt32();
+        itr.id = fields[1].GetUInt32();
+        itr.npcEntry = fields[2].GetUInt32();
+        itr.option_icon = fields[3].GetUInt32();
+        itr.option_id = fields[4].GetUInt32();
+        itr.option_text = fields[5].GetString();
+        itr.box_text = fields[6].GetString();
+        itr.faction = fields[7].GetUInt32();
+        itr.needType = fields[8].GetUInt32();
+        itr.needValue = fields[9].GetInt32();
+        itr.needValue2 = fields[10].GetInt32();
+        itr.map = fields[11].GetUInt32();
+        itr.x = fields[12].GetFloat();
+        itr.y = fields[13].GetFloat();
+        itr.z = fields[14].GetFloat();
+        itr.o = fields[15].GetFloat();
+        
+        //insert
+        _arkNpcMenuStore[itr.menu_id] = itr;
+
+        ++count;
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString(">> Loaded %u ARK npc Menu Config", count);
+}
+
+std::string ArkMgr::GetItemNameByEntry(Player* player, uint32 itemId) const
+{
+    std::string name = "Unknown";
+    ItemPrototype const* itemProto = sObjectMgr.GetItemPrototype(itemId);
+    if (itemProto)
+    {
+        name = itemProto->Name1;
+        int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+        sObjectMgr.GetItemLocaleStrings(itemProto->ItemId, loc_idx, &name);
+
+        std::string tempname;
+        std::string color;
+
+        if (itemProto->Quality > MAX_ITEM_QUALITY)
+            color = "cffffffff";
+        else
+            color = ArkItemQualityColors[itemProto->Quality];
+
+        tempname = "|" + color + "|Hitem:" + std::to_string(itemId) + ":0:0:0:0:0:0:0|h[" + name + "]|h|r";
+        return tempname;
+    }
+    return name;
+}
+
+bool ArkMgr::CheckNullBag(Player* player, uint32 itemId, uint32 count)
+{
+    uint32 noSpaceForCount = 0;
+
+    // check space and find places
+    ItemPosCountVec dest;
+    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+    if (msg != EQUIP_ERR_OK)                                // convert to possible store amount
+        count = noSpaceForCount;
+
+    if (count == 0 || dest.empty())
+    {
+        ChatHandler(player).PSendSysMessage("[系统]: 背包物品空间不足!");
+        return false;
+    }
+
+    return true;
+}
+
+bool ArkMgr::AddItem(Player* player, uint32 itemId, uint32 count)
+{
+    uint32 noSpaceForCount = 0;
+
+    // check space and find places
+    ItemPosCountVec dest;
+    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+    if (msg != EQUIP_ERR_OK)                                // convert to possible store amount
+        count -= noSpaceForCount;
+
+    if (count == 0 || dest.empty())
+    {
+        ChatHandler(player).PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+        return false;
+    }
+
+    Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+    if (item)
+        player->SendNewItem(item, count, true, false);
+    else
+        return false;
+
+    return true;
 }

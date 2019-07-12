@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the CMaNGOS Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,12 +19,13 @@
 #ifndef SC_ACE_COMMON_H
 #define SC_ACE_COMMON_H
 
-
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
+#include "AI/ScriptDevAI/include/precompiled.h"
 #include "Time.h"
 #include "Errors.h"
 #include "Log.h"
+#include "Tools/Language.h"
 #include <map>
 #include <unordered_map>
 
@@ -59,6 +60,37 @@ struct ArkInstanceConfig
 {
     uint32 level;
     uint32 Creaturelevel;
+};
+
+struct ArkMenuConfig
+{
+    uint32 menu_id;
+    uint32 id;
+    uint32 npcEntry;
+    uint32 option_icon;
+    uint32 option_id;
+    std::string option_text;
+    std::string box_text;
+    int32 faction;
+    uint32 needType;
+    int32 needValue;
+    int32 needValue2;
+    uint32 map;
+    float x;
+    float y;
+    float z;
+    float o;
+};
+
+const std::string ArkItemQualityColors[MAX_ITEM_QUALITY] =
+{
+    "cff9d9d9d",        // GREY
+    "cffffffff",        // WHITE
+    "cff1eff00",        // GREEN
+    "cff0070dd",        // BLUE
+    "cffa335ee",        // PURPLE
+    "cffff8000",        // ORANGE
+    "cffe6cc80"         // LIGHT YELLOW
 };
 
 class ArkMgr
@@ -96,6 +128,7 @@ public:
 
     std::string GetNameLink(Player* player, bool type);
 
+    //Instance difficulty level 
     void LoadArkInstanceDB();
     typedef std::unordered_map<uint32, ArkInstanceConfig> ArkInstanceContainer;
     ArkInstanceConfig const* GetArkInstanceConfig(uint32 mapid) const
@@ -103,17 +136,32 @@ public:
         ArkInstanceContainer::const_iterator itr = _arkInstanceStore.find(mapid);
         return itr != _arkInstanceStore.end() ? &itr->second : nullptr;
     }
-    //Instance difficulty level 
     float InstanceLevel(uint32 mapid);
     void InstanceCreatureLevel(uint32 mapid, uint32& value);
 
     //Instant Arrive Fly
     bool IsFlyInstantArrive(uint32 guid) const;
     void SetFlyInstantArriveDate(uint32 guid, uint32 value);
+
+    //npc Menu
+    void LoadArkNpcMenuDB();
+    typedef std::map<uint32, ArkMenuConfig> ArkNpcMenuContainer;
+    ArkMenuConfig const* GetArkNpcMenuConfig(uint32 menu_id) const
+    {
+        ArkNpcMenuContainer::const_iterator itr = _arkNpcMenuStore.find(menu_id);
+        return itr != _arkNpcMenuStore.end() ? &itr->second : nullptr;
+    }
+
+    std::map<uint32, ArkMenuConfig> const& GetNpcMenus() const { return _arkNpcMenuStore; }
+    std::string GetItemNameByEntry(Player* player, uint32 itemId) const;
+
+    bool CheckNullBag(Player* player, uint32 itemId, uint32 count);
+    bool AddItem(Player* player, uint32 itemId, uint32 count);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
     ArkInstanceContainer _arkInstanceStore;
+    ArkNpcMenuContainer _arkNpcMenuStore;
 };
 
 #define sArkMgr MaNGOS::Singleton<ArkMgr>::Instance()

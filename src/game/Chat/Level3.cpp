@@ -7503,3 +7503,11 @@ bool ChatHandler::HandleArkFactionChatCommand(char* args)
 
     return true;
 }
+
+bool ChatHandler::HandleReloadArkMenuCommand(char* /*args*/)
+{
+    sLog.outString("Re-Loading `_ark_npc_menu` Table!");
+    sArkMgr.LoadArkNpcMenuDB();
+    SendGlobalSysMessage("DB table `_ark_npc_menu` reloaded.");
+    return true;
+}

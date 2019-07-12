@@ -793,6 +793,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "ReloadConfig",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkConfigCommand,     "", nullptr },
         { "ReloadVipSystem",SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkVipSystemCommand,  "", nullptr },
         { "vip",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleArkAddvipCommand,           "", nullptr },
+        { "ReloadMenu",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkMenuCommand,       "", nullptr },
         { nullptr,          0,                  false, nullptr,                                        "", nullptr }
     };
 

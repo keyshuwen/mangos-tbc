@@ -1,4 +1,4 @@
-/**
+﻿/**
 * ScriptData
 * SDName:      scripted_on_events
 * SD%Complete: n/n
@@ -199,6 +199,8 @@ void OnStartup()
     sArkMgr.LoadArkVipSystem();
     sLog.outString("Loaded ARK Instance Config...");
     sArkMgr.LoadArkInstanceDB();
+    sLog.outString("Loaded ARK Npc Menu Config...");
+    sArkMgr.LoadArkNpcMenuDB();
     sLog.outString("============================================================================================");
     sLog.outString("Ark Loaded end, Now you ready to play.");
     sLog.outString("");
