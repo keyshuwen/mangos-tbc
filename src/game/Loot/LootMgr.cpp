@@ -249,7 +249,7 @@ void LootStore::ReportNotExistedId(uint32 id) const
 
 // Checks if the entry (quest, non-quest, reference) takes it's chance (at loot generation)
 // RATE_DROP_ITEMS is no longer used for all types of entries
-bool LootStoreItem::Roll(bool rate) const
+bool LootStoreItem::Roll(Player const* lootOwner, bool rate) const
 {
     if (chance >= 100.0f)
         return true;
@@ -263,6 +263,8 @@ bool LootStoreItem::Roll(bool rate) const
     ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(itemid);
 
     float qualityModifier = pProto && rate ? sWorld.getConfig(qualityToRate[pProto->Quality]) : 1.0f;
+
+    qualityModifier += lootOwner->m_lootRate;
 
     return roll_chance_f(chance * qualityModifier);
 }
@@ -2505,7 +2507,7 @@ void LootTemplate::Process(Loot& loot, Player const* lootOwner, LootStore const&
         if (Entrie.conditionId && lootOwner && !PlayerOrGroupFulfilsCondition(loot, lootOwner, Entrie.conditionId))
             continue;
 
-        if (!Entrie.Roll(rate))
+        if (!Entrie.Roll(lootOwner, rate))
             continue;                                       // Bad luck for the entry
 
         if (Entrie.mincountOrRef < 0)                           // References processing

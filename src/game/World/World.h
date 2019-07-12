@@ -517,6 +517,7 @@ class World
         void LoadSpamRecords(bool reload = false);
 
         void SendWorldText(int32 string_id, ...);
+        void SendFactionText(uint32 string_id, const uint32 team, ...);
         void SendWorldTextToAboveSecurity(uint32 securityLevel, int32 string_id, ...);
         void SendGlobalMessage(WorldPacket const& packet) const;
         void SendServerMessage(ServerMessageType type, const char* text = "", Player* player = nullptr) const;

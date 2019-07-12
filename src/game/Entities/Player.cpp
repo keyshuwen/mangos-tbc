@@ -645,6 +645,22 @@ Player::Player(WorldSession* session): Unit(), m_taxiTracker(*this), m_mover(thi
     m_createdInstanceClearTimer = MINUTE * IN_MILLISECONDS;
 
     m_cinematicMgr = nullptr;
+
+    m_vipLevel = 0;
+    m_title = "";
+    m_nameColor = "";
+    m_chatColor = "";
+    m_addAutojf = 0;
+    m_lootRate = 0.0f;
+    m_healthRate = 0.0f;
+    m_dmgRate = 0.0f;
+    m_cureRate = 0.0f;
+    m_xpRate = 0.0f;
+    m_reputationRate = 0.0f;
+    m_adduppro = 0.0f;
+    m_vipAura = 0;
+    m_talent = 0;
+    m_extra_talent = 0;
 }
 
 Player::~Player()
@@ -6380,7 +6396,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 uint32 XP;
                 if (diff < -5)
                 {
-                    XP = uint32(sObjectMgr.GetBaseXP(getLevel() + 5) * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr.GetBaseXP(getLevel() + 5) * (sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE) + m_xpRate));
                 }
                 else if (diff > 5)
                 {
@@ -6390,11 +6406,11 @@ void Player::CheckAreaExploreAndOutdoor()
                     else if (exploration_percent < 0)
                         exploration_percent = 0;
 
-                    XP = uint32(sObjectMgr.GetBaseXP(p->area_level) * exploration_percent / 100 * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr.GetBaseXP(p->area_level) * exploration_percent / 100 * (sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE) + m_xpRate));
                 }
                 else
                 {
-                    XP = uint32(sObjectMgr.GetBaseXP(p->area_level) * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr.GetBaseXP(p->area_level) * (sWorld.getConfig(CONFIG_FLOAT_RATE_XP_EXPLORE) + m_xpRate));
                 }
 
                 GiveXP(XP, nullptr);
@@ -6514,7 +6530,7 @@ int32 Player::CalculateReputationGain(ReputationSource source, int32 rep, int32 
         percent *= repRate;
     }
 
-    int32 result = int32(sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN) * rep * percent / 100.0f);
+    int32 result = int32((sWorld.getConfig(CONFIG_FLOAT_RATE_REPUTATION_GAIN) + m_reputationRate) * rep * percent / 100.0f);
 
     if (source == REPUTATION_SOURCE_QUEST && result && faction)
     {
@@ -13216,7 +13232,7 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
     QuestStatusData& q_status = mQuestStatus[quest_id];
 
     // Used for client inform but rewarded only in case not max level
-    uint32 xp = uint32(pQuest->XPValue(this) * sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST));
+    uint32 xp = uint32(pQuest->XPValue(this) * (sWorld.getConfig(CONFIG_FLOAT_RATE_XP_QUEST) + m_xpRate));
 
     if (getLevel() < sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
         GiveXP(xp, nullptr);
@@ -20695,7 +20711,7 @@ Item* Player::ConvertItem(Item* item, uint32 newItemId)
 uint32 Player::CalculateTalentsPoints() const
 {
     uint32 talentPointsForLevel = getLevel() < 10 ? 0 : getLevel() - 9;
-    return uint32(talentPointsForLevel * sWorld.getConfig(CONFIG_FLOAT_RATE_TALENT));
+    return uint32(talentPointsForLevel * sWorld.getConfig(CONFIG_FLOAT_RATE_TALENT) + m_talent + m_extra_talent);
 }
 
 struct DoPlayerLearnSpell

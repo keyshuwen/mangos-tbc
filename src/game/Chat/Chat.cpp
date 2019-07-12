@@ -786,6 +786,15 @@ ChatCommand* ChatHandler::getCommandTable()
         { nullptr,          0,                  false, nullptr,                                        "", nullptr }
     };
 
+    static ChatCommand arkCommandTable[] =
+    {
+        { "jf",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleAddjfCommand,               "", nullptr },
+        { "ReloadConfig",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkConfigCommand,     "", nullptr },
+        { "ReloadVipSystem",SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadArkVipSystemCommand,  "", nullptr },
+        { "vip",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleArkAddvipCommand,           "", nullptr },
+        { nullptr,          0,                  false, nullptr,                                        "", nullptr }
+    };
+
     static ChatCommand commandTable[] =
     {
         { "account",        SEC_PLAYER,         true,  nullptr,                                        "", accountCommandTable  },
@@ -880,6 +889,9 @@ ChatCommand* ChatHandler::getCommandTable()
         { "waterwalk",      SEC_GAMEMASTER,     false, &ChatHandler::HandleWaterwalkCommand,           "", nullptr },
         { "quit",           SEC_CONSOLE,        true,  &ChatHandler::HandleQuitCommand,                "", nullptr },
         { "mmap",           SEC_GAMEMASTER,     false, nullptr,                                        "", mmapCommandTable },
+        { "ark",            SEC_ADMINISTRATOR,  false, nullptr,                                        "", arkCommandTable  },
+        { "sj",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleArkWorldChatCommand,        "", nullptr },
+        { "zy",             SEC_ADMINISTRATOR,  false, &ChatHandler::HandleArkFactionChatCommand,      "", nullptr },
 #ifdef BUILD_PLAYERBOT
         { "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,           "", nullptr },
 #endif

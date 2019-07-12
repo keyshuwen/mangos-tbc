@@ -56,6 +56,7 @@
 #include "AuctionHouseBot/AuctionHouseBot.h"
 #include "Server/SQLStorages.h"
 #include "Loot/LootMgr.h"
+#include "AI/ScriptDevAI/scripts/custom/ark_common.h"
 
 static uint32 ahbotQualityIds[MAX_AUCTION_QUALITY] =
 {
@@ -7209,6 +7210,288 @@ bool ChatHandler::HandleLinkCheckCommand(char* args)
 
     if (!found)
         PSendSysMessage("Link for guids = %u , %u not found", masterCounter, player->GetSelectionGuid().GetCounter());
+
+    return true;
+}
+
+bool ChatHandler::HandleAddjfCommand(char* args)
+{
+    if (!*args)
+        return false;
+
+    Player* target = getSelectedPlayer();
+    if (!target)
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        return true;
+    }
+
+    uint32 useramount = sArkMgr.Getjf(target->GetSession()->GetAccountId());
+    int32 amount = atoi(args);
+    int32 Accountjf = useramount + amount;
+    if (Accountjf < 0)
+        Accountjf = 0;
+
+    sArkMgr.Addjf(target->GetSession()->GetAccountId(), amount);
+    PSendSysMessage(LANG_ARK_COMMAND_MODIFY_JF, target->GetName(), useramount, amount, Accountjf);
+    return true;
+}
+
+bool ChatHandler::HandleReloadArkVipSystemCommand(char* /*args*/)
+{
+    sLog.outString("Re-Loading `_ark_vip_system` Table!");
+    sArkMgr.LoadArkVipSystem();
+    SendGlobalSysMessage("DB table `_ark_vip_system` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleArkAddvipCommand(char* args)
+{
+    if (!*args)
+        return false;
+
+    Player* target = getSelectedPlayer();
+    if (!target)
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        return true;
+    }
+
+    uint32 amount = atoi(args);
+    if (amount < 0)
+        amount = 0;
+
+    sArkMgr.SetVipLevel(target->GetSession()->GetAccountId(), amount);
+    PSendSysMessage(LANG_ARK_COMMAND_MODIFY_VIP, target->GetName(), amount);
+    return true;
+}
+
+bool ChatHandler::HandleReloadArkConfigCommand(char* /*args*/)
+{
+    sLog.outString("Re-Loading `_ark_config` Table!");
+    sArkMgr.LoadArkConfig();
+    SendGlobalSysMessage("DB table `_ark_config` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleArkWorldChatCommand(char* args)
+{
+    if (!args)
+        return false;
+
+    ArkConfig const* itr = sArkMgr.GetArkConfig("Player.world.chat");
+    if (!itr || itr->value == 0)
+        return false;
+
+    Player* player = m_session->GetPlayer();
+
+    //check Cost
+    uint32 checkCost = 0;
+    if (itr->cost)
+    {
+        if (itr->value == 2 || itr->value == 5)
+        {
+            checkCost = sArkMgr.Getjf(player->GetSession()->GetAccountId());
+            if (checkCost < itr->cost)
+                return false;
+        }
+        else
+        {    //item cost
+            if (itr->value == 3 || itr->value == 6)
+            {
+                checkCost = itr->cost;
+                if (!player->HasItemCount(checkCost, 1))
+                    return false;
+            }
+            else
+            {
+                checkCost = player->GetMoney();
+                if (checkCost < itr->cost)
+                    return false;
+            }
+        }
+    }
+
+    std::string CostjfString = player->GetSession()->GetMangosString(LANG_ARK_PLAYER_COST_JF);
+    std::string sIcon = sArkMgr.GetNameLink(player, true);
+    std::string title = player->m_title;
+    std::string name = "|";
+    name += player->m_nameColor;
+    name += player->GetName();
+    name += "|r";
+
+    std::string msg = "|";
+    msg += player->m_chatColor;
+    msg += args;
+    msg += "|r";
+
+    switch (itr->value)
+    {
+    case 1:
+    {
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+            player->ModifyMoney(-int32(itr->cost));
+        break;
+    }
+    case 2:
+    {
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+        {
+            sArkMgr.Addjf(player->GetSession()->GetAccountId(), -int32(itr->cost));
+            player->GetSession()->SendNotification(CostjfString.c_str(), itr->cost);
+        }
+        break;
+    }
+    case 3:
+    {
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+            player->DestroyItemCount(itr->cost, 1, true);
+        break;
+    }
+    case 4:
+    {
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), title.c_str(), name.c_str(), msg.c_str());
+        if (checkCost)
+            player->ModifyMoney(-int32(itr->cost));
+        break;
+    }
+    case 5:
+    {
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), title.c_str(), name.c_str(), msg.c_str());
+        if (checkCost)
+        {
+            sArkMgr.Addjf(player->GetSession()->GetAccountId(), -int32(itr->cost));
+            player->GetSession()->SendNotification(CostjfString.c_str(), itr->cost);
+        }
+        break;
+    }
+    case 6:
+    {
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), title.c_str(), name.c_str(), msg.c_str());
+        if (checkCost)
+            player->DestroyItemCount(itr->cost, 1, true);
+        break;
+    }
+    default:
+        sWorld.SendWorldText(LANG_ARK_PLAYER_WORLD_CHAT, sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+            player->ModifyMoney(-int32(itr->cost));
+        break;
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleArkFactionChatCommand(char* args)
+{
+    if (!args)
+        return false;
+
+    ArkConfig const* itr = sArkMgr.GetArkConfig("Player.world.Facttion.chat");
+    if (!itr || itr->value == 0)
+        return false;
+
+    Player* player = m_session->GetPlayer();
+
+    //check Cost
+    uint32 checkCost = 0;
+    if (itr->cost)
+    {
+        if (itr->value == 2 || itr->value == 5)
+        {
+            checkCost = sArkMgr.Getjf(player->GetSession()->GetAccountId());
+            if (checkCost < itr->cost)
+                return false;
+        }
+        else
+        {    //item cost
+            if (itr->value == 3 || itr->value == 6)
+            {
+                checkCost = itr->cost;
+                if (!player->HasItemCount(checkCost, 1))
+                    return false;
+            }
+            else
+            {
+                checkCost = player->GetMoney();
+                if (checkCost < itr->cost)
+                    return false;
+            }
+        }
+    }
+
+    std::string CostjfString = player->GetSession()->GetMangosString(LANG_ARK_PLAYER_COST_JF);
+    std::string sIcon = sArkMgr.GetNameLink(player, false);
+    std::string title = player->m_title;
+    std::string name = "|";
+    name += player->m_nameColor;
+    name += player->GetName();
+    name += "|r";
+
+    std::string msg = "|";
+    msg += player->m_chatColor;
+    msg += args;
+    msg += "|r";
+
+    switch (itr->value)
+    {
+    case 1:
+    {
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+            player->ModifyMoney(-int32(itr->cost));
+        break;
+    }
+    case 2:
+    {
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+        {
+            sArkMgr.Addjf(player->GetSession()->GetAccountId(), -int32(itr->cost));
+            player->GetSession()->SendNotification(CostjfString.c_str(), itr->cost);
+        }
+        break;
+    }
+    case 3:
+    {
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+            player->DestroyItemCount(itr->cost, 1, true);
+        break;
+    }
+    case 4:
+    {
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), title.c_str(), name.c_str(), msg.c_str());
+        if (checkCost)
+            player->ModifyMoney(-int32(itr->cost));
+        break;
+    }
+    case 5:
+    {
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), title.c_str(), name.c_str(), msg.c_str());
+        if (checkCost)
+        {
+            sArkMgr.Addjf(player->GetSession()->GetAccountId(), -int32(itr->cost));
+            player->GetSession()->SendNotification(CostjfString.c_str(), itr->cost);
+        }
+        break;
+    }
+    case 6:
+    {
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), title.c_str(), name.c_str(), msg.c_str());
+        if (checkCost)
+            player->DestroyItemCount(itr->cost, 1, true);
+        break;
+    }
+    default:
+        sWorld.SendFactionText(LANG_ARK_PLAYER_FACTION_CHAT, player->GetTeam(), sIcon.c_str(), name.c_str(), title.c_str(), msg.c_str());
+        if (checkCost)
+            player->ModifyMoney(-int32(itr->cost));
+        break;
+    }
 
     return true;
 }

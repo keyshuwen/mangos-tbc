@@ -1669,6 +1669,29 @@ void World::SendWorldTextToAboveSecurity(uint32 securityLevel, int32 string_id, 
     va_end(ap);
 }
 
+/// Send a System Message to Faction all players (except self if mentioned)
+void World::SendFactionText(uint32 string_id, const uint32 team, ...)
+{
+    va_list ap;
+    va_start(ap, team); // Parameters before "..."
+
+    MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+            continue;
+
+        //Not Faction players
+        if (itr->second->GetPlayer()->GetTeam() != team)
+            continue;
+
+        wt_do(itr->second->GetPlayer());
+    }
+
+    va_end(ap);
+}
+
 /// Sends a packet to all players with optional team and instance restrictions
 void World::SendGlobalMessage(WorldPacket const& packet) const
 {

@@ -197,6 +197,8 @@ void Player::UpdateMaxHealth()
     value += GetModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+    value += value * m_healthRate;
+
     SetMaxHealth((uint32)value);
 }
 

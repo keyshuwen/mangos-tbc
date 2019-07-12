@@ -1026,6 +1026,15 @@ enum MangosStrings
     //                                    10000-10999
 
     // Use for custom patches             11000-11999
+    LANG_ARK_COMMAND_MODIFY_JF          = 90000,
+    LANG_ARK_PLAYER_LONGIN_FIRST        = 90001,
+    LANG_ARK_PLAYER_LONGIN              = 90002,
+    LANG_ARK_COMMAND_MODIFY_VIP         = 90003,
+    LANG_ARK_PLAYER_WORLD_CHAT          = 90004,
+    LANG_ARK_PLAYER_FACTION_CHAT        = 90005,
+    LANG_ARK_PLAYER_ADD_JF              = 90006,
+    LANG_ARK_PLAYER_COST_JF             = 90007,
+    LANG_ARK_PLAYER_LACK_JF             = 90008,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000999999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

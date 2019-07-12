@@ -688,6 +688,14 @@ class ChatHandler
         bool HandleLinkToggleCommand(char* args);
         bool HandleLinkCheckCommand(char* args);
 
+        //Custom Commands
+        bool HandleAddjfCommand(char* args);
+        bool HandleReloadArkVipSystemCommand(char* args);
+        bool HandleArkAddvipCommand(char* args);
+        bool HandleReloadArkConfigCommand(char* args);
+        bool HandleArkWorldChatCommand(char* args);
+        bool HandleArkFactionChatCommand(char* args);
+
         //! Development Commands
         bool HandleSaveAllCommand(char* args);
 

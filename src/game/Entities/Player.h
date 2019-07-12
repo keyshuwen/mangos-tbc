@@ -2265,6 +2265,25 @@ class Player : public Unit
 
         void UpdateEverything();
 
+        /*********************************************************/
+        /***                  CUSTOM SYSTEM                    ***/
+        /*********************************************************/
+        uint32 m_vipLevel;
+        std::string m_title;
+        std::string m_nameColor;
+        std::string m_chatColor;
+        uint32 m_addAutojf;
+        float m_lootRate;
+        float m_healthRate;
+        float m_dmgRate;
+        float m_cureRate;
+        float m_xpRate;
+        float m_reputationRate;
+        float m_adduppro;
+        uint32 m_vipAura;
+        uint32 m_talent;
+        uint32 m_extra_talent;
+
         // Public Save system functions
         void SaveItemToInventory(Item* item); // optimization for gift wrapping
         void SaveTitles(); // optimization for arena rewards
