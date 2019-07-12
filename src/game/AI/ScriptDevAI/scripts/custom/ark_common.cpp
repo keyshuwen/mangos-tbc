@@ -377,3 +377,66 @@ void ArkMgr::InstanceCreatureLevel(uint32 mapid, uint32& value)
 
     return;
 }
+
+bool ArkMgr::IsFlyInstantArrive(uint32 guid) const
+{
+    ArkConfig const* itr;
+    itr = sArkMgr.GetArkConfig("Player.world.fly");
+    if (itr)
+    {
+        if (itr->value == 1)
+            return true;
+
+        if (itr->value == 2)
+        {
+            QueryResult* result = CharacterDatabase.PQuery("SELECT guid, fly_last_date FROM _ark_characters_extra WHERE guid = '%u' AND fly_last_date >= NOW()", guid);
+            if (result)
+            {
+                delete result;
+                return true;
+            }    
+        }
+
+        return false;
+    }
+
+    return false;
+}
+
+void ArkMgr::SetFlyInstantArriveDate(uint32 guid, uint32 value)
+{
+    if (value <= 0)
+        return;
+
+    time_t now = time(nullptr);
+    time_t last_date = time_t(0);
+    char sTimeDate[128] = { 0 };
+    QueryResult* result = CharacterDatabase.PQuery("SELECT guid, UNIX_TIMESTAMP(fly_last_date) FROM _ark_characters_extra WHERE guid = '%u'", guid);
+    if (result)
+    {
+        Field* fields = result->Fetch();
+        last_date = time_t(fields[1].GetUInt64());
+        if (last_date > now)
+            last_date += value;
+        else
+            last_date = now + value;
+
+        strftime(sTimeDate, 64, "%Y-%m-%d %H:%M:%S", localtime(&last_date));
+        CharacterDatabase.PExecute("UPDATE _ark_characters_extra SET fly_last_date = '%s' WHERE guid = '%u'", sTimeDate, guid);
+        delete result;
+    }
+    else
+    {
+        last_date = now + value;
+        strftime(sTimeDate, 64, "%Y-%m-%d %H:%M:%S", localtime(&last_date));
+        QueryResult* resultguld = CharacterDatabase.PQuery("SELECT guid FROM _ark_characters_extra WHERE guid = '%u'", guid);
+        if (resultguld)
+        {
+            CharacterDatabase.PExecute("UPDATE _ark_characters_extra SET fly_last_date = '%s' WHERE guid = '%u'", sTimeDate, guid);
+            delete resultguld;
+        }
+        else
+            CharacterDatabase.PExecute("INSERT INTO _ark_characters_extra (guid, fly_last_date) VALUES ('%u', '%s')", guid, sTimeDate);
+
+    }
+}

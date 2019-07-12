@@ -106,6 +106,10 @@ public:
     //Instance difficulty level 
     float InstanceLevel(uint32 mapid);
     void InstanceCreatureLevel(uint32 mapid, uint32& value);
+
+    //Instant Arrive Fly
+    bool IsFlyInstantArrive(uint32 guid) const;
+    void SetFlyInstantArriveDate(uint32 guid, uint32 value);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
