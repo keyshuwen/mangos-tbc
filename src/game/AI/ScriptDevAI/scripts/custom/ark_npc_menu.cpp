@@ -226,6 +226,13 @@ bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSe
                 pPlayer->SEND_TRAINERLIST(pCreature->GetObjectGuid());
             return true;
         }
+        break;
+    case 1013: //技能点数最大
+        if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
+        {
+            pPlayer->UpdateSkillsForLevel(true);
+        }
+        break;
     case 1100://重置副本
         if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
         {
