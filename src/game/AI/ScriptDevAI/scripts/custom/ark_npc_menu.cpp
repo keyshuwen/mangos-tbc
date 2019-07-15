@@ -116,17 +116,35 @@ bool _NpcTeleportCostCheck(Player* pPlayer, Creature* pCreature, uint32 uiSender
 
 bool GossipHello_ark_npc_menu(Player* pPlayer, Creature* pCreature)
 {
-    _ShowNpcTeleportMenu(0, pPlayer, pCreature);
+    //是否战斗
+    if (pPlayer->isInCombat())
+    {
+        pPlayer->GetSession()->SendNotification("你当前处于战斗状态，暂时无法使用！");
+        return true;
+    }
+
+    ////是否骑乘
+    //if (pPlayer->IsFlying() || pPlayer->IsTaxiFlying() || pPlayer->IsMounted())   
+    //{
+    //    pPlayer->GetSession()->SendNotification("你当前处于骑乘状态，暂时无法使用！ ");
+    //    return true;
+    //}
+
+    if (pCreature->GetCreatureType() == 12/*迷你宠物*/)
+    {
+        if (pPlayer->GetMiniPet() == pCreature || pPlayer->isGameMaster())
+            _ShowNpcTeleportMenu(0, pPlayer, pCreature);
+        else
+            pPlayer->GetSession()->SendNotification("当前迷你宠物不属于你，无法使用宠物功能！");
+    }
+    else
+        _ShowNpcTeleportMenu(0, pPlayer, pCreature);
+
     return true;
 }
 
 bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (pPlayer->isInCombat())
-    {
-        return false;
-    }
-
     ArkMenuConfig const* itr = sArkMgr.GetArkNpcMenuConfig(uiSender);
     if (!itr)
         return false;
