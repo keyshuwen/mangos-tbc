@@ -46,12 +46,14 @@ void _ItemThisTransmog(Player* pPlayer, Item* pItem, Item* pTargets)
     }
 
     // skip Miscellaneous / Libram / Idol / Totem
-    if (pTargets->GetProto()->Class == 4 && (pTargets->GetProto()->SubClass == 0 || pTargets->GetProto()->SubClass == 7 || pTargets->GetProto()->SubClass == 8 || pTargets->GetProto()->SubClass == 9))
+    if (pTargets->GetProto()->Class == 4 && (pTargets->GetProto()->SubClass == 0 && (!(pTargets->GetProto()->InventoryType == 4 || pTargets->GetProto()->InventoryType == 19 || pTargets->GetProto()->InventoryType == 20))
+        || pTargets->GetProto()->SubClass == 7 
+        || pTargets->GetProto()->SubClass == 8
+        || pTargets->GetProto()->SubClass == 9))
     {
         ChatHandler(pPlayer).PSendSysMessage("[系统]: 装备不可幻化, 该类型禁止幻化!");
         return;
-    }
-        
+    }   
 
     // find the slot of the item
     uint8 slots[4];

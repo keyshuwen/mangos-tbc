@@ -41,7 +41,7 @@ void ArkMgr::LoadArkConfig()
     // For reload case
     _arkConfigStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT entry, value, cost FROM _ark_config");
+    QueryResult* result = WorldDatabase.PQuery("SELECT entry, value, cost FROM _ark_config");
 
     if (!result)
     {
@@ -113,7 +113,7 @@ void ArkMgr::LoadArkVipSystem()
     // For reload case
     _arkVipSystemStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT entry, title, nameColor, chatColor, reqItem, jfCost, everyDayItem, addAutojf, lootRate, healthRate, dmgRate, cureRate, xpRate, reputationRate, adduppro, aura, talent, description FROM _ark_vip_system");
+    QueryResult* result = WorldDatabase.PQuery("SELECT entry, title, nameColor, chatColor, reqItem, jfCost, everyDayItem, addAutojf, lootRate, healthRate, dmgRate, cureRate, xpRate, reputationRate, adduppro, aura, talent, description FROM _ark_vip_system");
 
     if (!result)
     {
@@ -326,7 +326,7 @@ void ArkMgr::LoadArkInstanceDB()
     // For reload case
     _arkInstanceStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT map, level, Creaturelevel, Herolevel, HeroCreaturelevel FROM _ark_instance_template");
+    QueryResult* result = WorldDatabase.PQuery("SELECT map, level, Creaturelevel, Herolevel, HeroCreaturelevel FROM _ark_instance_template");
 
     if (!result)
     {
@@ -480,7 +480,7 @@ void ArkMgr::LoadArkNpcMenuDB()
     // For reload case
     _arkNpcMenuStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT * FROM _ark_npc_menu");
+    QueryResult* result = WorldDatabase.PQuery("SELECT * FROM _ark_npc_menu");
 
     if (!result)
     {
@@ -600,7 +600,7 @@ void ArkMgr::LoadArkItemEnchantmentDB()
     // For reload case
     _arkItemEnchantmentStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT * FROM _ark_item_enchantment");
+    QueryResult* result = WorldDatabase.PQuery("SELECT * FROM _ark_item_enchantment");
 
     if (!result)
     {
@@ -663,6 +663,8 @@ void ArkMgr::LoadArkItemTransmog(Player* player)
             Item* pItem = player->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, fields[1].GetUInt32()));
             if (pItem)
                 player->SetUInt32Value(PLAYER_VISIBLE_ITEM_1_0 + (fields[0].GetUInt8() * MAX_VISIBLE_ITEM_OFFSET), pItem->GetEntry());
+            else
+                CharacterDatabase.PExecute("DELETE FROM _ark_characters_transmog WHERE guid = %u AND slot = %u", player->GetGUIDLow(), fields[0].GetUInt8());
 
         } while (transmog->NextRow());
 
@@ -794,7 +796,7 @@ void ArkMgr::LoadArkStatsLimitDB()
     // For reload case
     _arkStatsLimitStore.clear();
 
-    QueryResult* result = WorldDatabase.Query("SELECT class, Agility_crit, Agility_dodge, Intellect_crit FROM _ark_stats_limit");
+    QueryResult* result = WorldDatabase.PQuery("SELECT class, Agility_crit, Agility_dodge, Intellect_crit FROM _ark_stats_limit");
 
     if (!result)
     {
