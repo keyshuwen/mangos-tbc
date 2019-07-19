@@ -57,6 +57,84 @@ void _ShowNpcTeleportMenu(uint32 MenuId, Player* pPlayer, Creature* pCreature)
     return;
 }
 
+bool _ShowDualSpecMenu(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->isInCombat())  //是否战斗
+    {
+        pPlayer->GetSession()->SendNotification("你当前处于战斗状态，暂时无法使用！ ");
+        return false;
+    }
+
+    if (pPlayer->IsFlying() || pPlayer->IsTaxiFlying() || pPlayer->IsMounted())   //是否骑乘
+    {
+        pPlayer->GetSession()->SendNotification("你当前处于骑乘状态，暂时无法使用！ ");
+        return false;
+    }
+
+    if (pPlayer->isDead())    //是否死亡
+    {
+        pPlayer->GetSession()->SendNotification("你已死亡，暂时无法使用！ ");
+        return false;
+    }
+
+    if (!sArkMgr.IsDualSpecArrive(pPlayer->GetGUIDLow()))
+    {
+        pPlayer->GetSession()->SendNotification("你未激活双天赋功能，暂时无法使用！ ");
+        return false;
+    }
+
+    if (pPlayer->getLevel() < 10) //10级才有天赋点
+    {
+        pPlayer->GetSession()->SendNotification("你当前等级小于十级，暂时无法使用！ ");
+        return false;
+    }
+
+    std::stringstream ss;
+    ss << "|cFF9933FF〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓" << "|r|n";
+    ss << "|cFF9933FF〓※※※※天赋激活选择※※※※〓" << "|r|n";
+    ss << "|cFF9933FF〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓" << "|r|n";
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);
+
+    uint8 specCount = pPlayer->GetSpecsCount();
+    for (uint8 i = 0; i < specCount; ++i)
+    {
+        std::stringstream specNameString;
+        specNameString << "|cFF0041FF[天赋页]";
+        if (pPlayer->GetSpecName(i) == "NULL")
+            specNameString << " [未命名] ";
+        else
+            specNameString << pPlayer->GetSpecName(i);
+        if (i == pPlayer->GetActiveSpec())
+            specNameString << " 〖当前激活〗";
+        else
+            specNameString << "";
+
+        specNameString << "|r";
+
+        pPlayer->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_BATTLE, specNameString.str(), GOSSIP_SENDER_MAIN, 100000 + i, "你是否需要切换双天赋？", 0, false);
+    }
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "|cFF00CC99※〓〓〓〓天赋名称修改〓〓〓〓※|r ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);
+
+    for (uint8 i = 0; i < specCount; ++i)
+    {
+        std::stringstream specNameString;
+        specNameString << "|cFFCC00CC[天赋名称] ";
+        if (pPlayer->GetSpecName(i) == "NULL")
+            specNameString << "[未命名]";
+        else
+            specNameString << pPlayer->GetSpecName(i);
+
+        specNameString << "|r";
+
+        pPlayer->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_DOT, specNameString.str(), GOSSIP_SENDER_MAIN, 100000 + i, "", 0, true);
+    }
+
+    pPlayer->SEND_GOSSIP_MENU(99999, pCreature->GetObjectGuid());
+    return true;
+}
+
 bool _NpcTeleportCostCheck(Player* pPlayer, Creature* pCreature, uint32 uiSender)
 {
     ArkMenuConfig const* itr = sArkMgr.GetArkNpcMenuConfig(uiSender);
@@ -251,6 +329,50 @@ bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSe
             pPlayer->UpdateSkillsForLevel(true);
         }
         break;
+    case 1014: //多天赋
+        if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
+        {
+            if (!_ShowDualSpecMenu(pPlayer, pCreature))
+                pPlayer->CLOSE_GOSSIP_MENU();
+        }
+        return true;
+    case 1015: //增加天赋页
+        {
+            if (pPlayer->GetSpecsCount() >= MAX_TALENT_SPECS)
+            {
+                pPlayer->GetSession()->SendNotification("|cFF33FF00你的天赋页已经最大，无法继续增加！|r");
+                pPlayer->CLOSE_GOSSIP_MENU();
+                return true;
+            }
+
+            if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
+            {
+                //增加天赋页
+                if (pPlayer->GetSpecsCount() < MAX_TALENT_SPECS)   
+                    pPlayer->SetSpecsCount(pPlayer->GetSpecsCount() + 1);
+            }
+        }
+        break;
+    case 1016: //激活包月多天赋
+        {
+            if (sArkMgr.IsDualSpecArrive(pPlayer->GetGUIDLow()))
+            {
+                pPlayer->GetSession()->SendNotification("|cFF33FF00多天赋正常使用中, 无需重复开通！|r");
+                pPlayer->CLOSE_GOSSIP_MENU();
+                return true;
+            }
+
+            if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
+            {
+                //初始化双天赋页
+                if (pPlayer->GetSpecsCount() < 2)
+                    pPlayer->SetSpecsCount(2);
+
+                sArkMgr.SetDualSpecArriveDate(pPlayer->GetGUIDLow(), 2592000); //30天
+                ChatHandler(pPlayer).PSendSysMessage("[系统]: 多天赋包月服务开通成功！");
+            }
+        }
+        break;
     case 1100://重置副本
         if (_NpcTeleportCostCheck(pPlayer, pCreature, uiSender))
         {
@@ -264,6 +386,47 @@ bool GossipSelect_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSe
             _ShowNpcTeleportMenu(itr->map, pPlayer, pCreature);
         }
         return true;
+    case 100000: //激活天赋1
+        pPlayer->ActivateSpec(0);
+        return true; 
+    case 100001: //激活天赋2
+        pPlayer->ActivateSpec(1);
+        return true; 
+    case 100002: //激活天赋3
+        pPlayer->ActivateSpec(2);
+        return true; 
+    case 100003: //激活天赋4
+        pPlayer->ActivateSpec(3);
+        return true;
+    case 100004: //激活天赋5
+        pPlayer->ActivateSpec(4);
+        return true;
+    }
+    pPlayer->CLOSE_GOSSIP_MENU();
+    return true;
+}
+
+bool GossipSelectWithCode_ark_npc_menu(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* code)
+{
+    switch (uiAction)
+    {
+    case 100000:
+        pPlayer->SetSpecName(0, code);
+        break;
+    case 100001:
+        pPlayer->SetSpecName(1, code);
+        break;
+    case 100002:
+        pPlayer->SetSpecName(2, code);
+        break;
+    case 100003:
+        pPlayer->SetSpecName(3, code);
+        break;
+    case 100004:
+        pPlayer->SetSpecName(4, code);
+        break;
+    default:
+        break;
     }
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
@@ -277,5 +440,6 @@ void AddSC_ark_npc_menu()
     pNewScript->Name = "ark_npc_menu";
     pNewScript->pGossipHello = &GossipHello_ark_npc_menu;
     pNewScript->pGossipSelect = &GossipSelect_ark_npc_menu;
+    pNewScript->pGossipSelectWithCode = &GossipSelectWithCode_ark_npc_menu;
     pNewScript->RegisterSelf(false);
 }

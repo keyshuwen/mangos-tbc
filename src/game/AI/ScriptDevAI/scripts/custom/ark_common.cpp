@@ -856,3 +856,51 @@ float ArkMgr::GetStatsLimit(uint32 Class, uint32 StatsType) const
     }
     return val;
 }
+
+bool ArkMgr::IsDualSpecArrive(uint32 guid) const
+{
+    QueryResult* result = CharacterDatabase.PQuery("SELECT guid, talent_last_date FROM _ark_characters_extra WHERE guid = '%u' AND talent_last_date >= NOW()", guid);
+    if (result)
+    {
+        delete result;
+        return true;
+    }
+    return false;
+}
+
+void ArkMgr::SetDualSpecArriveDate(uint32 guid, uint32 value)
+{
+    if (value <= 0)
+        return;
+
+    time_t now = time(nullptr);
+    time_t last_date = time_t(0);
+    char sTimeDate[128] = { 0 };
+    QueryResult* result = CharacterDatabase.PQuery("SELECT guid, UNIX_TIMESTAMP(talent_last_date) FROM _ark_characters_extra WHERE guid = '%u'", guid);
+    if (result)
+    {
+        Field* fields = result->Fetch();
+        last_date = time_t(fields[1].GetUInt64());
+        if (last_date > now)
+            last_date += value;
+        else
+            last_date = now + value;
+
+        strftime(sTimeDate, 64, "%Y-%m-%d %H:%M:%S", localtime(&last_date));
+        CharacterDatabase.PExecute("UPDATE _ark_characters_extra SET talent_last_date = '%s' WHERE guid = '%u'", sTimeDate, guid);
+        delete result;
+    }
+    else
+    {
+        last_date = now + value;
+        strftime(sTimeDate, 64, "%Y-%m-%d %H:%M:%S", localtime(&last_date));
+        QueryResult* resultguld = CharacterDatabase.PQuery("SELECT guid FROM _ark_characters_extra WHERE guid = '%u'", guid);
+        if (resultguld)
+        {
+            CharacterDatabase.PExecute("UPDATE _ark_characters_extra SET talent_last_date = '%s' WHERE guid = '%u'", sTimeDate, guid);
+            delete resultguld;
+        }
+        else
+            CharacterDatabase.PExecute("INSERT INTO _ark_characters_extra (guid, talent_last_date) VALUES ('%u', '%s')", guid, sTimeDate);
+    }
+}

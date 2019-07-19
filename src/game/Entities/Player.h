@@ -123,6 +123,14 @@ struct PlayerSpell
 
 typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 
+struct PlayerTalent
+{
+    PlayerSpellState state : 8;
+    uint8 spec : 8;
+};
+
+typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -770,6 +778,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADARENAINFO,
     PLAYER_LOGIN_QUERY_LOADBGDATA,
     PLAYER_LOGIN_QUERY_LOADSKILLS,
+    PLAYER_LOGIN_QUERY_LOADTALENTS,
     PLAYER_LOGIN_QUERY_LOADMAILS,
     PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,
     PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS,
@@ -1521,6 +1530,7 @@ class Player : public Unit
         void RemovePetActionBar() const;
 
         bool HasSpell(uint32 spell) const override;
+        bool HasTalent(uint32 spell, uint8 spec) const;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell, uint32 reqLevel) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id, uint32* pReqlevel = nullptr) const;
@@ -1543,6 +1553,7 @@ class Player : public Unit
         void learnQuestRewardedSpells(Quest const* quest);
         void learnSpellHighRank(uint32 spellid);
 
+        void addTalent(uint32 spellId, uint8 spec, bool learning);
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1, points); }
         void UpdateFreeTalentPoints(bool resetIfNeed = true);
@@ -1569,6 +1580,20 @@ class Player : public Unit
         void SetSpellClass(uint8 playerClass);
         SpellFamily GetSpellClass() const { return m_spellClassName; } // client function equivalent - says what player can cast
 
+        // dual spec
+        uint8 m_activeSpec;
+        uint8 m_specsCount;
+
+        void ActivateSpec(uint8 spec);
+        uint8 GetActiveSpec() { return m_activeSpec; }
+        void SetActiveSpec(uint8 spec) { m_activeSpec = spec; }
+        uint8 GetSpecsCount() { return m_specsCount; }
+        void SetSpecsCount(uint8 count) { m_specsCount = count; }
+
+        std::string GetSpecName(uint8 spec);
+        void SetSpecName(uint8 spec, const char* specName);
+        std::string specName;
+
         void setResurrectRequestData(ObjectGuid guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana)
         {
             m_resurrectGuid = guid;
@@ -1591,7 +1616,8 @@ class Player : public Unit
         static bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type, Player* player);
         ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
         void removeActionButton(uint8 button);
-        void SendInitialActionButtons() const;
+        void SendInitialActionButtons() const { SendActionButtons(1); }
+        void SendActionButtons(uint32 state) const;
 
         PvPInfo pvpInfo;
         void UpdatePvP(bool state, bool overriding = false);
@@ -2335,6 +2361,7 @@ class Player : public Unit
         void _LoadWeeklyQuestStatus(QueryResult* result);
         void _LoadMonthlyQuestStatus(QueryResult* result);
         void _LoadGroup(QueryResult* result);
+        void _LoadTalents(QueryResult* result);
         void _LoadSkills(QueryResult* result);
         void _LoadSpells(QueryResult* result);
         bool _LoadHomeBind(QueryResult* result);
@@ -2357,6 +2384,7 @@ class Player : public Unit
         void _SaveDailyQuestStatus();
         void _SaveWeeklyQuestStatus();
         void _SaveMonthlyQuestStatus();
+        void _SaveTalents();
         void _SaveSkills();
         void _SaveSpells();
         void _SaveBGData();
@@ -2424,6 +2452,7 @@ class Player : public Unit
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
+        PlayerTalentMap m_talents[MAX_TALENT_SPECS];
 
         ActionButtonList m_actionButtons;
 

@@ -229,6 +229,9 @@ public:
     }
     float GetStatsLimit(uint32 Class, uint32 StatsType) const;
 
+    //Dual Spec
+    bool IsDualSpecArrive(uint32 guid) const;
+    void SetDualSpecArriveDate(uint32 guid, uint32 value);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
