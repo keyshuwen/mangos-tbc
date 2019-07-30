@@ -438,7 +438,7 @@ enum PlayerFlags
     PLAYER_FLAGS_COMMENTATOR            = 0x00080000,       // first appeared in TBC
 };
 
-#define MAX_TITLE_INDEX     64                              // 1 uint64 field
+#define MAX_TITLE_INDEX     2000                            // 1 uint64 field
 
 // used in (PLAYER_FIELD_BYTES, 0) byte values
 enum PlayerFieldByteFlags

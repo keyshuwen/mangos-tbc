@@ -904,3 +904,65 @@ void ArkMgr::SetDualSpecArriveDate(uint32 guid, uint32 value)
             CharacterDatabase.PExecute("INSERT INTO _ark_characters_extra (guid, talent_last_date) VALUES ('%u', '%s')", guid, sTimeDate);
     }
 }
+
+void ArkMgr::LoadArkTitleDB()
+{
+    // For reload case
+    _arkTitleStore.clear();
+
+    QueryResult* result = WorldDatabase.PQuery("SELECT entry, aura FROM _ark_titles");
+
+    if (!result)
+    {
+        sLog.outErrorDb(">> Loaded 0 ARK Title Config. DB table `_ark_titles` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        ArkTitleConfig itr;
+        itr.entry = fields[0].GetUInt32();
+        itr.aura = fields[1].GetUInt32();
+
+        //insert
+        _arkTitleStore[itr.entry] = itr;
+
+        ++count;
+    } while (result->NextRow());
+
+    delete result;
+
+    sLog.outString(">> Loaded %u ARK Title Config", count);
+}
+
+void ArkMgr::SetTitlesAura(Player* player, uint32 title)
+{
+    uint32 title_aura = 0;
+
+    ArkTitleConfig const* itr = GetArkTitleConfig(title);
+    if (itr)
+        title_aura = itr->aura;
+
+    //Init Aura
+    ResetTitlesAura(player);
+    if (title_aura)
+        player->CastSpell(player, title_aura, TRIGGERED_NONE);
+}
+
+void ArkMgr::ResetTitlesAura(Player* player)
+{
+    if (_arkTitleStore.empty())
+        return;
+
+    //For
+    ArkTitleContainer::const_iterator itr = _arkTitleStore.begin();
+    while (itr != _arkTitleStore.end())
+    {
+        if (&itr->second && itr->second.aura && player->HasAura(itr->second.aura))
+            player->RemoveAurasDueToSpell(itr->second.aura);
+        ++itr;
+    }
+}

@@ -134,6 +134,12 @@ struct ArkStatsLimitConfig
     float Intellect_crit;
 };
 
+struct ArkTitleConfig
+{
+    uint32 entry;
+    uint32 aura;
+};
+
 class ArkMgr
 {
 public:
@@ -229,9 +235,20 @@ public:
     }
     float GetStatsLimit(uint32 Class, uint32 StatsType) const;
 
-    //Dual Spec
+    // Dual Spec
     bool IsDualSpecArrive(uint32 guid) const;
     void SetDualSpecArriveDate(uint32 guid, uint32 value);
+
+    // titles
+    void LoadArkTitleDB();
+    typedef std::unordered_map<uint32, ArkTitleConfig> ArkTitleContainer;
+    ArkTitleConfig const* GetArkTitleConfig(uint32 entry) const
+    {
+        ArkTitleContainer::const_iterator itr = _arkTitleStore.find(entry);
+        return itr != _arkTitleStore.end() ? &itr->second : nullptr;
+    }
+    void SetTitlesAura(Player* player, uint32 title);
+    void ResetTitlesAura(Player* player);
 private:
     ArkConfigContainer _arkConfigStore;
     ArkVipSystemContainer _arkVipSystemStore;
@@ -239,6 +256,7 @@ private:
     ArkNpcMenuContainer _arkNpcMenuStore;
     ArkItemEnchantmentContainer _arkItemEnchantmentStore;
     ArkStatsLimitContainer _arkStatsLimitStore;
+    ArkTitleContainer _arkTitleStore;
 };
 
 #define sArkMgr MaNGOS::Singleton<ArkMgr>::Instance()

@@ -40,6 +40,7 @@
 #include "OutdoorPvP/OutdoorPvP.h"
 #include "Entities/Pet.h"
 #include "Social/SocialMgr.h"
+#include "AI/ScriptDevAI/scripts/custom/ark_common.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recv_data)
 {
@@ -1282,6 +1283,9 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recv_data)
 {
     DEBUG_LOG("WORLD: Received opcode CMSG_SET_TITLE");
 
+    if (GetPlayer()->isDead())
+        return;
+        
     int32 title;
     recv_data >> title;
 
@@ -1295,6 +1299,8 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recv_data)
         title = 0;
 
     GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, title);
+
+    sArkMgr.SetTitlesAura(GetPlayer(), title);
 }
 
 void WorldSession::HandleTimeSyncResp(WorldPacket& recv_data)
