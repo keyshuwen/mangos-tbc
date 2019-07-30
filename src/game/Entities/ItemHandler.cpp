@@ -1245,6 +1245,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
         // continue check for case when attempt add 2 similar unique equipped gems in one item.
         ItemPrototype const* iGemProto = Gems[i]->GetProto();
 
+        // check class item
+        if ((iGemProto->AllowableClass & _player->getClassMask()) == 0)
+        {
+            _player->SendEquipError(EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM, itemTarget, nullptr);
+            return;
+        }
+
         // unique item (for new and already placed bit removed enchantments
         if (iGemProto->Flags & ITEM_FLAG_UNIQUE_EQUIPPABLE)
         {
